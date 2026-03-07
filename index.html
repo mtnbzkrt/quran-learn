@@ -2,14 +2,20 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="theme-color" content="#1a5c1a"/>
   <title>Kur'an Öğreniyorum</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Inter',sans-serif;background:#f0f7f0;color:#1a2e1a;min-height:100vh}
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body,#root{height:100%;width:100%;overflow:hidden}
+    body{font-family:'Inter',sans-serif;background:#f0f7f0;color:#1a2e1a;overscroll-behavior:none}
     .arabic{font-family:'Amiri',serif;direction:rtl}
+    ::-webkit-scrollbar{display:none}
+    button{font-family:'Inter',sans-serif}
   </style>
 </head>
 <body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>

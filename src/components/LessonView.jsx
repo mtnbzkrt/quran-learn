@@ -1,46 +1,44 @@
+import { useState, useRef } from 'react'
 import { lessons, sections } from '../data/curriculum'
 
-function ContentBlock({ block }) {
-  switch (block.type) {
+function Block({ b }) {
+  switch(b.type) {
     case 'text':
-      return <p style={{color:'#2d4a2d', lineHeight:1.85, fontSize:'0.95rem', whiteSpace:'pre-line', marginBottom:0}}>{block.text}</p>
+      return <p style={{color:'#2d4a2d',lineHeight:1.9,fontSize:'15px',whiteSpace:'pre-line'}}>{b.text}</p>
     case 'heading':
-      return <h3 style={{color:'#1a3a1a', fontWeight:700, fontSize:'1rem', paddingTop:4, borderBottom:'2px solid #e8f5e8', paddingBottom:6, marginBottom:0}}>{block.text}</h3>
+      return <div style={{fontWeight:700,color:'#1a3a1a',fontSize:'15px',paddingTop:4,borderBottom:'2px solid #e8f5e8',paddingBottom:8}}>{b.text}</div>
     case 'arabic':
       return (
-        <div style={{background:'#f0f9f0', border:'1px solid #c8e6c8', borderRadius:12, padding:'18px 16px', textAlign:'center'}}>
-          <div className="arabic" style={{fontSize:'2rem', color:'#1a5c1a', lineHeight:1.8, marginBottom:8}}>{block.text}</div>
-          {block.transliteration && <div style={{color:'#4a7a4a', fontSize:'0.85rem', fontStyle:'italic', marginBottom:4}}>{block.transliteration}</div>}
-          {block.meaning && <div style={{color:'#2d4a2d', fontSize:'0.9rem', fontWeight:600}}>{block.meaning}</div>}
+        <div style={{background:'#f0f9f0',border:'1px solid #c8e6c8',borderRadius:16,padding:'20px 16px',textAlign:'center'}}>
+          <div className="arabic" style={{fontSize:'2.2rem',color:'#1a5c1a',lineHeight:1.8,marginBottom:10}}>{b.text}</div>
+          {b.transliteration&&<div style={{color:'#4a7a4a',fontSize:'13px',fontStyle:'italic',marginBottom:6,padding:'4px 12px',background:'white',borderRadius:20,display:'inline-block'}}>{b.transliteration}</div>}
+          {b.meaning&&<div style={{color:'#2d4a2d',fontSize:'14px',fontWeight:600,marginTop:6}}>{b.meaning}</div>}
         </div>
       )
     case 'note':
-      return <div style={{background:'#fff8e1', border:'1px solid #ffe082', borderRadius:10, padding:'12px 14px', fontSize:'0.88rem', color:'#5a4000', lineHeight:1.7}}>{block.text}</div>
+      return <div style={{background:'#fffde7',border:'1px solid #ffe082',borderRadius:12,padding:'14px 16px',fontSize:'14px',color:'#5a4000',lineHeight:1.75}}>{b.text}</div>
     case 'list':
       return (
-        <ul style={{listStyle:'none', display:'flex', flexDirection:'column', gap:8}}>
-          {block.items.map((item,i) => (
-            <li key={i} style={{background:'#f8faf8', border:'1px solid #e0ece0', borderRadius:8, padding:'10px 14px', fontSize:'0.9rem', color:'#2d4a2d', lineHeight:1.6}}>{item}</li>
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {b.items.map((item,i)=>(
+            <div key={i} style={{background:'#f8faf8',border:'1px solid #e0ece0',borderRadius:10,padding:'12px 14px',fontSize:'14px',color:'#2d4a2d',lineHeight:1.6}}>{item}</div>
           ))}
-        </ul>
+        </div>
       )
     case 'arabic-table':
       return (
-        <div style={{overflowX:'auto'}}>
-          <table style={{width:'100%', borderCollapse:'collapse'}}>
+        <div style={{overflowX:'auto',borderRadius:12,border:'1px solid #c8e6c8'}}>
+          <table style={{width:'100%',borderCollapse:'collapse',minWidth:300}}>
             <tbody>
-              {block.rows.map((row,ri) => (
-                <tr key={ri}>
-                  {row.map((cell,ci) => {
-                    const isArabic = ci % 2 === 0
-                    return (
-                      <td key={ci} style={{padding:'8px 10px', border:'1px solid #e0ece0', background: isArabic ? '#f0f9f0' : 'white', textAlign:'center'}}>
-                        {isArabic
-                          ? <span className="arabic" style={{fontSize:'1.5rem', color:'#1a5c1a'}}>{cell}</span>
-                          : <span style={{fontSize:'12px', color:'#4a7a4a', fontWeight:500}}>{cell}</span>}
-                      </td>
-                    )
-                  })}
+              {b.rows.map((row,ri)=>(
+                <tr key={ri} style={{background:ri%2===0?'#f0f9f0':'white'}}>
+                  {row.map((cell,ci)=>(
+                    <td key={ci} style={{padding:'10px 12px',borderBottom:'1px solid #e0ece0',textAlign:'center'}}>
+                      {ci%2===0
+                        ?<span className="arabic" style={{fontSize:'1.8rem',color:'#1a5c1a',display:'block'}}>{cell}</span>
+                        :<span style={{fontSize:'13px',color:'#4a7a4a',fontWeight:500}}>{cell}</span>}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -49,12 +47,12 @@ function ContentBlock({ block }) {
       )
     case 'arabic-cards':
       return (
-        <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(130px,1fr))', gap:10}}>
-          {block.cards.map((card,i) => (
-            <div key={i} style={{background:'white', border:'1px solid #c8e6c8', borderRadius:12, padding:'16px 12px', textAlign:'center', boxShadow:'0 1px 3px rgba(0,0,0,0.05)'}}>
-              <div className="arabic" style={{fontSize:'2.5rem', color:'#1a5c1a', marginBottom:6, lineHeight:1}}>{card.ar}</div>
-              <div style={{fontWeight:700, color:'#1a3a1a', fontSize:'0.9rem', marginBottom:4}}>{card.name}</div>
-              <div style={{fontSize:'11px', color:'#4a7a4a', lineHeight:1.4}}>{card.note}</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:10}}>
+          {b.cards.map((card,i)=>(
+            <div key={i} style={{background:'white',border:'1px solid #c8e6c8',borderRadius:14,padding:'18px 12px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,0.05)'}}>
+              <div className="arabic" style={{fontSize:'3rem',color:'#1a5c1a',lineHeight:1,marginBottom:8}}>{card.ar}</div>
+              <div style={{fontWeight:700,color:'#1a3a1a',fontSize:'14px',marginBottom:4}}>{card.name}</div>
+              <div style={{fontSize:'12px',color:'#4a7a4a',lineHeight:1.4}}>{card.note}</div>
             </div>
           ))}
         </div>
@@ -65,61 +63,72 @@ function ContentBlock({ block }) {
 
 export default function LessonView({ lessonId, progress, onComplete, onBack, onNext, onPrev }) {
   const lesson = lessons[lessonId]
-  const section = sections.find(s => s.id === lesson.section)
+  const section = sections.find(s=>s.id===lesson.section)
   const isDone = !!progress[lessonId]
-  const allIds = Object.keys(lessons).map(Number)
+  const allIds = Array.from({length:38},(_,i)=>i+1)
   const idx = allIds.indexOf(lessonId)
   const hasPrev = idx > 0
-  const hasNext = idx < allIds.length - 1
+  const hasNext = idx < allIds.length-1
 
   return (
-    <div style={{maxWidth:680, margin:'0 auto', paddingBottom:100}}>
-      {/* Top bar */}
-      <div style={{position:'sticky', top:0, zIndex:10, background:'rgba(240,247,240,0.97)', backdropFilter:'blur(8px)', borderBottom:'1px solid #c8e6c8', padding:'12px 16px', display:'flex', alignItems:'center', gap:10}}>
-        <button onClick={onBack} style={{background:'none', border:'none', fontSize:22, cursor:'pointer', color:'#2d6a2d', lineHeight:1, padding:'4px 8px'}}>←</button>
-        <div style={{flex:1, minWidth:0}}>
-          <div style={{fontSize:'11px', color:'#4a7a4a', fontWeight:600}}>{section.emoji} Bölüm {section.id}: {section.title}</div>
-          <div style={{fontWeight:700, color:'#1a3a1a', fontSize:'0.95rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>Ders {lessonId}: {lesson.title}</div>
+    <div style={{height:'100%',display:'flex',flexDirection:'column',overflow:'hidden'}}>
+      {/* Sticky header */}
+      <div style={{background:'linear-gradient(135deg,#1a5c1a,#2d8a2d)',padding:'16px 16px 14px',flexShrink:0}}>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <button onClick={onBack} style={{width:36,height:36,borderRadius:10,background:'rgba(255,255,255,0.15)',border:'none',color:'white',fontSize:18,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>←</button>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:'11px',color:'rgba(255,255,255,0.65)',fontWeight:600,marginBottom:2}}>{section.emoji} Bölüm {section.id} · Ders {lessonId}/38</div>
+            <div style={{fontWeight:700,color:'white',fontSize:'15px',lineHeight:1.2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{lesson.title}</div>
+          </div>
+          {isDone&&<div style={{background:'rgba(255,255,255,0.2)',borderRadius:20,padding:'4px 10px',color:'white',fontSize:'12px',fontWeight:700,flexShrink:0}}>✓ Tamam</div>}
         </div>
-        {isDone && <span style={{background:'#4caf50', color:'white', borderRadius:20, padding:'3px 10px', fontSize:'12px', fontWeight:700, flexShrink:0}}>✓ Tamamlandı</span>}
+        {/* Mini progress bar */}
+        <div style={{marginTop:12,background:'rgba(255,255,255,0.2)',borderRadius:100,height:3}}>
+          <div style={{height:'100%',background:'#7fff7f',borderRadius:100,width:`${(idx/37)*100}%`}}/>
+        </div>
       </div>
 
-      <div style={{padding:'20px 16px', display:'flex', flexDirection:'column', gap:16}}>
-        {/* Content blocks */}
-        {lesson.content.map((block, i) => (
-          <ContentBlock key={i} block={block}/>
-        ))}
+      {/* Scrollable content */}
+      <div style={{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',padding:'16px 16px 24px'}}>
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          {lesson.content.map((b,i)=><Block key={i} b={b}/>)}
 
-        {/* Key points */}
-        <div style={{background:'linear-gradient(135deg,#1a5c1a,#2d6a2d)', borderRadius:14, padding:'20px 18px', color:'white', marginTop:8}}>
-          <div style={{fontWeight:700, fontSize:'0.95rem', marginBottom:12}}>📌 Bu Dersin Özeti</div>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
-            {lesson.keyPoints.map((kp,i) => (
-              <div key={i} style={{background:'rgba(255,255,255,0.12)', borderRadius:8, padding:'8px 10px', fontSize:'12px', lineHeight:1.4}}>✓ {kp}</div>
-            ))}
+          {/* Key points card */}
+          <div style={{background:'linear-gradient(135deg,#1a5c1a,#2d6a2d)',borderRadius:16,padding:'18px 16px',color:'white'}}>
+            <div style={{fontWeight:700,fontSize:'14px',marginBottom:12,display:'flex',alignItems:'center',gap:6}}>📌 Dersin Özeti</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              {lesson.keyPoints.map((kp,i)=>(
+                <div key={i} style={{background:'rgba(255,255,255,0.12)',borderRadius:10,padding:'10px 12px',fontSize:'12px',lineHeight:1.5}}>✓ {kp}</div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Complete button */}
-        {!isDone ? (
-          <button onClick={()=>onComplete(lessonId)} style={{padding:'16px', background:'linear-gradient(135deg,#2d6a2d,#4caf50)', color:'white', border:'none', borderRadius:12, fontSize:'1rem', fontWeight:700, cursor:'pointer', boxShadow:'0 4px 16px rgba(45,106,45,0.35)'}}>
-            ✅ Dersi Tamamladım
-          </button>
-        ) : (
-          <div style={{padding:'14px', background:'#e8f5e8', borderRadius:12, textAlign:'center', color:'#2d6a2d', fontWeight:600, fontSize:'0.95rem', border:'2px solid #4caf50'}}>
-            ✅ Bu dersi tamamladınız!
-          </div>
-        )}
+          {/* Complete */}
+          {!isDone
+            ? <button onClick={()=>onComplete(lessonId)} style={{padding:'18px',background:'linear-gradient(135deg,#2d6a2d,#4caf50)',color:'white',border:'none',borderRadius:16,fontSize:'16px',fontWeight:700,cursor:'pointer',boxShadow:'0 6px 20px rgba(45,106,45,0.35)',letterSpacing:'0.01em'}}>
+                ✅ Dersi Tamamladım
+              </button>
+            : <div style={{padding:'16px',background:'#e8f5e8',borderRadius:16,textAlign:'center',color:'#2d6a2d',fontWeight:700,fontSize:'15px',border:'2px solid #4caf50'}}>
+                ✅ Bu dersi tamamladınız!
+              </div>
+          }
 
-        {/* Prev / Next */}
-        <div style={{display:'flex', gap:10}}>
-          <button onClick={onPrev} disabled={!hasPrev} style={{flex:1, padding:'13px', background:hasPrev?'white':'#f0f0f0', color:hasPrev?'#2d6a2d':'#aaa', border:`1px solid ${hasPrev?'#c8e6c8':'#e0e0e0'}`, borderRadius:10, fontWeight:600, cursor:hasPrev?'pointer':'default', fontSize:'14px'}}>
-            ← Önceki Ders
-          </button>
-          <button onClick={onNext} disabled={!hasNext} style={{flex:1, padding:'13px', background:hasNext?'#2d6a2d':'#f0f0f0', color:hasNext?'white':'#aaa', border:'none', borderRadius:10, fontWeight:600, cursor:hasNext?'pointer':'default', fontSize:'14px'}}>
-            Sonraki Ders →
-          </button>
+          <div style={{height:8}}/>
         </div>
+      </div>
+
+      {/* Bottom nav — prev / next */}
+      <div style={{flexShrink:0,background:'white',borderTop:'1px solid #e8f5e8',padding:'12px 16px',display:'flex',gap:10,paddingBottom:'calc(12px + env(safe-area-inset-bottom))'}}>
+        <button onClick={onPrev} disabled={!hasPrev} style={{
+          flex:1,padding:'14px',borderRadius:14,border:'none',
+          background:hasPrev?'#f0f9f0':'#f5f5f5',
+          color:hasPrev?'#2d6a2d':'#ccc',fontWeight:700,fontSize:'14px',cursor:hasPrev?'pointer':'default'
+        }}>← Önceki</button>
+        <button onClick={onNext} disabled={!hasNext} style={{
+          flex:1,padding:'14px',borderRadius:14,border:'none',
+          background:hasNext?'#2d6a2d':'#f5f5f5',
+          color:hasNext?'white':'#ccc',fontWeight:700,fontSize:'14px',cursor:hasNext?'pointer':'default'
+        }}>Sonraki →</button>
       </div>
     </div>
   )
