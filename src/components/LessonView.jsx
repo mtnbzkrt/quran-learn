@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
-import { LETTERS, HAREKELER, SYLLABLES, WORDS, SURAS, speak } from '../data/curriculum'
+import { LETTERS, HAREKELER, SYLLABLES, WORDS, SURAS } from '../data/curriculum'
+import { speak, playSurahAudio, stopAudio } from '../utils/audio'
 import Quiz from './Quiz'
 
 const COLORS = ['#7c3aed','#dc2626','#0891b2','#16a34a','#b45309','#db2777','#0284c7']
@@ -206,7 +207,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               <div style={{fontSize:13, color:'#6b7280'}}>{a.meaning}</div>
             </div>
           ))}
-          <button onClick={()=>speak(sura.ayahs.map(a=>a.ar).join(' '), 0.65)} style={{padding:'14px', background:'#fff7ed', border:'2px solid #fed7aa', borderRadius:14, color:'#9a3412', fontWeight:700, cursor:'pointer', fontSize:15}}>
+          <button onClick={()=>playSurahAudio(lessonId)} style={{padding:'14px', background:'#fff7ed', border:'2px solid #fed7aa', borderRadius:14, color:'#9a3412', fontWeight:700, cursor:'pointer', fontSize:15}}>
             🔊 Tamamını Dinle
           </button>
           <button onClick={()=>finish(3)} style={{padding:'16px', background:'linear-gradient(135deg,#b45309,#d97706)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer'}}>

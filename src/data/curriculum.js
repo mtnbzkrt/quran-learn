@@ -1,13 +1,3 @@
-// Sesli okuma - Web Speech API
-export const speak = (text, rate = 0.7) => {
-  window.speechSynthesis.cancel()
-  const u = new SpeechSynthesisUtterance(text)
-  u.lang = 'ar-SA'
-  u.rate = rate
-  u.pitch = 1
-  window.speechSynthesis.speak(u)
-}
-
 export const LETTERS = [
   { ar:'أ', name:'Elif', group:1 },  { ar:'ب', name:'Be', group:1 },
   { ar:'ت', name:'Te', group:1 },    { ar:'ث', name:'Se', group:1 },
@@ -26,25 +16,21 @@ export const LETTERS = [
 ]
 
 export const HAREKELER = [
-  { symbol:'َ', name:'Üstün', sound:'a', color:'#ef4444', desc:'Harfin üstüne konur, "a" sesi verir' },
-  { symbol:'ِ', name:'Esre',  sound:'i', color:'#3b82f6', desc:'Harfin altına konur, "i" sesi verir' },
-  { symbol:'ُ', name:'Ötre',  sound:'u', color:'#22c55e', desc:'Harfin üstüne konur, "u" sesi verir' },
+  { symbol:'َ', name:'Üstün', sound:'a', color:'#ef4444', desc:'Harfin üstüne konur — "a" sesi verir' },
+  { symbol:'ِ', name:'Esre',  sound:'i', color:'#3b82f6', desc:'Harfin altına konur — "i" sesi verir' },
+  { symbol:'ُ', name:'Ötre',  sound:'u', color:'#22c55e', desc:'Harfin üstüne konur — "u" sesi verir' },
 ]
 
 export const SYLLABLES = [
-  // Üstün (a)
   { ar:'بَ', tr:'Ba', hareke:'üstün' }, { ar:'تَ', tr:'Ta', hareke:'üstün' },
-  { ar:'ثَ', tr:'Sa', hareke:'üstün' }, { ar:'جَ', tr:'Ca', hareke:'üstün' },
-  { ar:'حَ', tr:'Ha', hareke:'üstün' }, { ar:'خَ', tr:'Ha (kalın)', hareke:'üstün' },
-  { ar:'دَ', tr:'Da', hareke:'üstün' }, { ar:'رَ', tr:'Ra', hareke:'üstün' },
-  { ar:'سَ', tr:'Sa', hareke:'üstün' }, { ar:'مَ', tr:'Ma', hareke:'üstün' },
-  { ar:'نَ', tr:'Na', hareke:'üstün' }, { ar:'لَ', tr:'La', hareke:'üstün' },
-  // Esre (i)
+  { ar:'جَ', tr:'Ca', hareke:'üstün' }, { ar:'دَ', tr:'Da', hareke:'üstün' },
+  { ar:'رَ', tr:'Ra', hareke:'üstün' }, { ar:'سَ', tr:'Sa', hareke:'üstün' },
+  { ar:'مَ', tr:'Ma', hareke:'üstün' }, { ar:'نَ', tr:'Na', hareke:'üstün' },
+  { ar:'لَ', tr:'La', hareke:'üstün' }, { ar:'كَ', tr:'Ka', hareke:'üstün' },
   { ar:'بِ', tr:'Bi', hareke:'esre' }, { ar:'تِ', tr:'Ti', hareke:'esre' },
   { ar:'جِ', tr:'Ci', hareke:'esre' }, { ar:'دِ', tr:'Di', hareke:'esre' },
-  { ar:'رِ', tr:'Ri', hareke:'esre' }, { ar:'مِ', tr:'Mi', hareke:'esre' },
-  { ar:'نِ', tr:'Ni', hareke:'esre' }, { ar:'لِ', tr:'Li', hareke:'esre' },
-  // Ötre (u)
+  { ar:'رِ', tr:'Ri', hareke:'esre' }, { ar:'سِ', tr:'Si', hareke:'esre' },
+  { ar:'مِ', tr:'Mi', hareke:'esre' }, { ar:'نِ', tr:'Ni', hareke:'esre' },
   { ar:'بُ', tr:'Bu', hareke:'ötre' }, { ar:'تُ', tr:'Tu', hareke:'ötre' },
   { ar:'جُ', tr:'Cu', hareke:'ötre' }, { ar:'دُ', tr:'Du', hareke:'ötre' },
   { ar:'رُ', tr:'Ru', hareke:'ötre' }, { ar:'مُ', tr:'Mu', hareke:'ötre' },
@@ -65,38 +51,29 @@ export const WORDS = [
 ]
 
 export const SURAS = [
-  {
-    name:'Fatiha Suresi', nameAr:'سورة الفاتحة', emoji:'🌟',
-    ayahs:[
-      { ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', tr:'Bismillâhirrahmânirrahîm', meaning:"Allah'ın adıyla — O Rahman'dır, Rahim'dir" },
-      { ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', tr:'Elhamdülillâhi rabbil-âlemîn', meaning:"Hamd, âlemlerin Rabbi Allah'a" },
-      { ar:'الرَّحْمَنِ الرَّحِيمِ', tr:'Errahmânirrahîm', meaning:"O Rahman'dır, Rahim'dir" },
-      { ar:'مَالِكِ يَوْمِ الدِّينِ', tr:'Mâliki yevmiddîn', meaning:'Din gününün sahibi' },
-      { ar:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', tr:"İyyâke na'budu ve iyyâke nesta'în", meaning:'Yalnız sana ibadet, yalnız senden yardım' },
-      { ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', tr:'İhdinessırâtal-mustekîm', meaning:'Bizi doğru yola ilet' },
-      { ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ', tr:'Sırâtallezîne en\'amte aleyhim ğayril-mağdûbi aleyhim veleddâllîn', meaning:'Nimet verdiklerinin yolu — gazaba uğrayanlar ve sapanlar değil' },
-    ]
-  },
-  {
-    name:'İhlâs Suresi', nameAr:'سورة الإخلاص', emoji:'💚',
-    ayahs:[
-      { ar:'قُلْ هُوَ اللَّهُ أَحَدٌ', tr:'Kul huvallâhu ehad', meaning:'De ki: O Allah birdir' },
-      { ar:'اللَّهُ الصَّمَدُ', tr:'Allâhussamed', meaning:'Allah Samed\'dir (Her şey O\'na muhtaç)' },
-      { ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ', tr:'Lem yelid ve lem yûled', meaning:'Doğurmamış ve doğurulmamıştır' },
-      { ar:'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', tr:'Ve lem yekun lehu kufuven ehad', meaning:'Hiçbir şey O\'na denk değildir' },
-    ]
-  },
-  {
-    name:'Nâs Suresi', nameAr:'سورة الناس', emoji:'🛡️',
-    ayahs:[
-      { ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', tr:"Kul eûzu bi rabbin-nâs", meaning:"İnsanların Rabbi'ne sığınırım" },
-      { ar:'مَلِكِ النَّاسِ', tr:'Melikin-nâs', meaning:'İnsanların Meliği\'ne' },
-      { ar:'إِلَهِ النَّاسِ', tr:'İlâhin-nâs', meaning:'İnsanların İlahı\'na' },
-      { ar:'مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ', tr:'Min şerril-vesvâsil-hannâs', meaning:'Sinsi vesvesecinin şerrinden' },
-      { ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ', tr:'Ellezî yuvesvisu fî sudûrin-nâs', meaning:'İnsanların göğüslerine vesvese veren' },
-      { ar:'مِنَ الْجِنَّةِ وَالنَّاسِ', tr:'Minel-cinneti ven-nâs', meaning:'Cinlerden ve insanlardan' },
-    ]
-  },
+  { key:'fatiha', name:'Fatiha Suresi', nameAr:'سورة الفاتحة', emoji:'🌟', ayahs:[
+    { ar:'بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ', tr:'Bismillâhirrahmânirrahîm', meaning:"Allah'ın adıyla — O Rahman'dır, Rahim'dir" },
+    { ar:'الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ', tr:'Elhamdülillâhi rabbil-âlemîn', meaning:"Hamd, âlemlerin Rabbi Allah'a" },
+    { ar:'الرَّحْمَنِ الرَّحِيمِ', tr:'Errahmânirrahîm', meaning:"O Rahman'dır, Rahim'dir" },
+    { ar:'مَالِكِ يَوْمِ الدِّينِ', tr:'Mâliki yevmiddîn', meaning:'Din gününün sahibi' },
+    { ar:'إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ', tr:"İyyâke na'budu ve iyyâke nesta'în", meaning:'Yalnız sana ibadet eder, yalnız senden yardım dileriz' },
+    { ar:'اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ', tr:'İhdinessırâtal-mustekîm', meaning:'Bizi doğru yola ilet' },
+    { ar:'صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ', tr:"Sırâtallezîne en'amte aleyhim, ğayril-mağdûbi aleyhim veleddâllîn", meaning:'Nimet verdiklerinin yoluna; gazaba uğrayanların ve sapanların değil' },
+  ]},
+  { key:'ihlas', name:'İhlâs Suresi', nameAr:'سورة الإخلاص', emoji:'💚', ayahs:[
+    { ar:'قُلْ هُوَ اللَّهُ أَحَدٌ', tr:'Kul huvallâhu ehad', meaning:'De ki: O Allah birdir' },
+    { ar:'اللَّهُ الصَّمَدُ', tr:'Allâhussamed', meaning:"Allah Samed'dir" },
+    { ar:'لَمْ يَلِدْ وَلَمْ يُولَدْ', tr:'Lem yelid ve lem yûled', meaning:'Doğurmamış ve doğurulmamıştır' },
+    { ar:'وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ', tr:'Ve lem yekun lehu kufuven ehad', meaning:"Hiçbir şey O'na denk değildir" },
+  ]},
+  { key:'nas', name:'Nâs Suresi', nameAr:'سورة الناس', emoji:'🛡️', ayahs:[
+    { ar:'قُلْ أَعُوذُ بِرَبِّ النَّاسِ', tr:"Kul eûzu bi rabbin-nâs", meaning:"İnsanların Rabbi'ne sığınırım" },
+    { ar:'مَلِكِ النَّاسِ', tr:'Melikin-nâs', meaning:"İnsanların Meliği'ne" },
+    { ar:'إِلَهِ النَّاسِ', tr:'İlâhin-nâs', meaning:"İnsanların İlahı'na" },
+    { ar:'مِن شَرِّ الْوَسْوَاسِ الْخَنَّاسِ', tr:'Min şerril-vesvâsil-hannâs', meaning:'Sinsi vesvesecinin şerrinden' },
+    { ar:'الَّذِي يُوَسْوِسُ فِي صُدُورِ النَّاسِ', tr:'Ellezî yuvesvisu fî sudûrin-nâs', meaning:"İnsanların göğüslerine vesvese veren" },
+    { ar:'مِنَ الْجِنَّةِ وَالنَّاسِ', tr:'Minel-cinneti ven-nâs', meaning:'Cinlerden ve insanlardan' },
+  ]},
 ]
 
 export const SECTIONS = [

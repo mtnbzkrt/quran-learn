@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { LETTERS, HAREKELER, SYLLABLES, WORDS, speak } from '../data/curriculum'
+import { LETTERS, HAREKELER, SYLLABLES, WORDS } from '../data/curriculum'
+import { speak } from '../utils/audio'
 
 function shuffle(arr) { return [...arr].sort(()=>Math.random()-0.5) }
 
