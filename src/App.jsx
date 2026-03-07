@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Home from './components/Home'
 import LessonView from './components/LessonView'
+import InstallBanner from './components/InstallBanner'
 
 const PROGRESS_KEY = 'quran-progress'
 
@@ -19,7 +20,7 @@ export default function App() {
   const idx = allIds.indexOf(current)
 
   return (
-    <div style={{height:'100%',display:'flex',flexDirection:'column',maxWidth:480,margin:'0 auto',background:'#f0f7f0'}}>
+    <div style={{height:'100%',display:'flex',flexDirection:'column',maxWidth:480,margin:'0 auto',background:'#f0f7f0',position:'relative'}}>
       {current
         ? <LessonView lessonId={current} progress={progress}
             onComplete={complete}
@@ -27,7 +28,10 @@ export default function App() {
             onNext={()=>idx<allIds.length-1&&setCurrent(allIds[idx+1])}
             onPrev={()=>idx>0&&setCurrent(allIds[idx-1])}
           />
-        : <Home progress={progress} onLesson={setCurrent}/>
+        : <>
+            <Home progress={progress} onLesson={setCurrent}/>
+            <InstallBanner/>
+          </>
       }
     </div>
   )
