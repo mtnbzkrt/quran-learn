@@ -162,7 +162,7 @@ export default function Quiz({ lessonId, onFinish }) {
     if (selected) return
     setSelected(opt)
     const isOk = opt === q.correct
-    if (isOk) { setCorrect(c=>c+1); playCorrectSound(); speak('أحسنت',1.0) }
+    if (isOk) { setCorrect(c=>c+1); playCorrectSound() }
     else { setShake(true); setShowHint(true); playWrongSound(); speak(q.question); setTimeout(()=>setShake(false),500) }
     setTimeout(()=>{
       if (isLast) {
