@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { SURAHS, SURAH_FAZILET } from '../data/quranSurahs'
 
 const PROGRESS_KEY = 'quran-progress'
-const CACHE_KEY    = 'quran-ayah-cache'
+const CACHE_KEY    = 'quran-ayah-cache-v2'
 
 function loadProgress() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') } catch { return {} } }
 function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)) }
@@ -12,13 +12,20 @@ function saveCache(c)   { try { localStorage.setItem(CACHE_KEY, JSON.stringify(c
 // ─── Yardımcılar ────────────────────────────────────────────────────────────
 async function fetchAyahs(surahNum) {
   const cache = loadCache()
-  if (cache[surahNum]) return cache[surahNum]
+  if (cache[surahNum]?.length > 0 && cache[surahNum][0]?.text) return cache[surahNum]
+
   const res  = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`)
-  const data = await res.json()
-  const ayahData = data.data.ayahs.map(a => ({
-    number:        a.number,          // global Kuran ayeti (1–6236) — audio URL için
+  if (!res.ok) throw new Error('API error: ' + res.status)
+  const json = await res.json()
+
+  // Güvenli erişim — API yapısı kontrol
+  const ayahList = json?.data?.ayahs
+  if (!Array.isArray(ayahList) || ayahList.length === 0) throw new Error('Geçersiz API yanıtı')
+
+  const ayahData = ayahList.map(a => ({
+    number:        a.number,
     numberInSurah: a.numberInSurah,
-    text:          a.text,
+    text:          a.text || '',
   }))
   saveCache({ ...cache, [surahNum]: ayahData })
   return ayahData
@@ -226,14 +233,14 @@ export default function QuranView() {
                 ref={el => { ayahRefs.current[i] = el }}
                 onClick={() => !playing && startPlayback(i)}
                 style={{
-                  background:    isActive ? 'var(--gold-pale)' : 'white',
-                  border:        isActive ? '2px solid var(--gold)' : '1px solid var(--border)',
+                  background:    isActive ? '#fdf6e3' : '#ffffff',
+                  border:        isActive ? '2px solid #c9972c' : '1px solid #e8e0d0',
                   borderRadius:  16,
                   padding:       '16px 14px',
                   cursor:        playing ? 'default' : 'pointer',
                   opacity:       isPast ? 0.55 : 1,
                   transition:    'all 0.35s ease',
-                  boxShadow:     isActive ? '0 6px 24px rgba(201,151,44,0.22)' : 'var(--shadow-sm)',
+                  boxShadow:     isActive ? '0 6px 24px rgba(201,151,44,0.22)' : '0 1px 4px rgba(15,32,64,0.08)',
                   position:      'relative',
                   overflow:      'hidden',
                 }}
@@ -247,10 +254,10 @@ export default function QuranView() {
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
                   <div style={{
                     width:28, height:28, borderRadius:'50%',
-                    background: isActive ? 'var(--gold)' : isPast ? 'var(--cream)' : 'var(--cream)',
+                    background: isActive ? '#c9972c' : '#f8f5ef',
                     display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0
                   }}>
-                    <span style={{ fontSize:11, fontWeight:800, color: isActive ? 'var(--navy)' : 'var(--text-muted)' }}>{a.numberInSurah}</span>
+                    <span style={{ fontSize:11, fontWeight:800, color: isActive ? '#ffffff' : '#64748b' }}>{a.numberInSurah}</span>
                   </div>
 
                   {isActive ? (
@@ -270,16 +277,18 @@ export default function QuranView() {
 
                 {/* Ayet metni */}
                 <div style={{
-                  fontFamily: 'var(--font-arabic)',
-                  fontSize:   surah.n === 2 ? 22 : 26,   // uzun sureler için küçük
-                  color:      isActive ? 'var(--navy)' : 'var(--text)',
+                  fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+                  fontSize:   surah.n === 2 ? 22 : 28,
+                  color:      isActive ? '#0f2040' : '#1a1a2e',
                   textAlign:  'right',
-                  lineHeight: 2.1,
+                  lineHeight: 2.2,
                   direction:  'rtl',
                   fontWeight: isActive ? 700 : 400,
                   transition: 'color 0.3s',
+                  wordBreak:  'break-word',
+                  minHeight:  40,
                 }}>
-                  {a.text}
+                  {a.text || '⏳'}
                 </div>
               </div>
             )
