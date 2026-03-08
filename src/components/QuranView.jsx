@@ -244,7 +244,10 @@ export default function QuranView({ onSubView }) {
     <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
       <div style={{ background:'linear-gradient(135deg,#0f2040,#1a3560)', padding:'14px 16px', flexShrink:0 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-          <div style={{ color:'white', fontWeight:800, fontSize:17 }}>🎧 Kur'an-ı Kerim</div>
+          <div>
+            <div style={{ color:'white', fontWeight:800, fontSize:17 }}>🎧 Kur'an-ı Kerim</div>
+            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10 }}>v10·debug</div>
+          </div>
           <div style={{ background:'rgba(201,151,44,0.2)', border:'1px solid rgba(201,151,44,0.35)', borderRadius:12, padding:'5px 12px' }}>
             <span style={{ color:'#c9972c', fontWeight:800, fontSize:16 }}>{listenedCount}</span>
             <span style={{ color:'rgba(255,255,255,0.3)', fontSize:12 }}>/114</span>
@@ -292,7 +295,6 @@ export default function QuranView({ onSubView }) {
           )
         })}
       </div>
-      <div style={{textAlign:'center',padding:'8px',color:'#cbd5e1',fontSize:10}}>v10·debug</div>
     </div>
   )
 }
