@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { SURAHS, SURAH_FAZILET } from '../data/quranSurahs'
 
 const PROGRESS_KEY = 'quran-progress'
-const CACHE_KEY    = 'quran-ayah-cache-v2'
+const CACHE_KEY    = 'quran-ayah-cache-v3'
 
 function loadProgress() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') } catch { return {} } }
 function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)) }
@@ -10,11 +10,31 @@ function loadCache()    { try { return JSON.parse(localStorage.getItem(CACHE_KEY
 function saveCache(c)   { try { localStorage.setItem(CACHE_KEY, JSON.stringify(c)) } catch {} }
 
 // ─── Yardımcılar ────────────────────────────────────────────────────────────
+
+// Lokal veri haritası: surah no → {ayahs: [{ar, meaning, tr}], verseStart}
+const LOCAL_SURAH_MAP = {
+  1:   { key:'fatiha',  verseStart:1    },
+  112: { key:'ihlas',   verseStart:6222 },
+  114: { key:'nas',     verseStart:6231 },
+}
+
+function getLocalAyahs(surahN) {
+  const entry = LOCAL_SURAH_MAP[surahN]
+  if (!entry) return null
+  const sura = SURAS.find(s => s.key === entry.key)
+  if (!sura) return null
+  return sura.ayahs.map((a, i) => ({
+    number:        entry.verseStart + i,
+    numberInSurah: i + 1,
+    text:          a.ar,
+  }))
+}
+
 async function fetchAyahs(surahNum) {
   const cache = loadCache()
   if (cache[surahNum]?.length > 0 && cache[surahNum][0]?.text) return cache[surahNum]
 
-  const res  = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`)
+  const res  = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/quran-uthmani`)
   if (!res.ok) throw new Error('API error: ' + res.status)
   const json = await res.json()
 
@@ -71,6 +91,16 @@ export default function QuranView({ onSubView }) {
     setSurah(s); setAyahs(null); setLoading(true)
     setCurIdx(null); setPlaying(false); setStopped(false)
     resumeIdxRef.current = 0; setError(null)
+
+    // Önce lokal veriye bak (Fatiha, İhlâs, Nâs)
+    const localAyahs = getLocalAyahs(s.n)
+    if (localAyahs) {
+      setAyahs(localAyahs)
+      setLoading(false)
+      return
+    }
+
+    // Yoksa API'den çek
     try {
       const data = await fetchAyahs(s.n)
       setAyahs(data)
@@ -278,9 +308,9 @@ export default function QuranView({ onSubView }) {
 
                 {/* Ayet metni */}
                 <div style={{
-                  fontFamily: "'Amiri', 'Scheherazade New', 'Noto Naskh Arabic', serif",
+                  fontFamily: "'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Arabic Typesetting', 'Noto Naskh Arabic', serif",
                   fontSize:   surah.n === 2 ? 22 : 28,
-                  color:      isActive ? '#0f2040' : '#1a1a2e',
+                  color:      '#1a1a2e',
                   textAlign:  'right',
                   lineHeight: 2.2,
                   direction:  'rtl',
