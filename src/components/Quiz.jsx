@@ -7,34 +7,39 @@ import { speak } from '../utils/audio'
 function playCorrectSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const t = ctx.currentTime
-    // İki kısa bip — "ding ding"
-    ;[880, 1100].forEach((freq, i) => {
-      const osc  = ctx.createOscillator()
-      const gain = ctx.createGain()
-      osc.connect(gain); gain.connect(ctx.destination)
-      osc.type = 'sine'
-      osc.frequency.value = freq
-      gain.gain.setValueAtTime(0, t + i * 0.12)
-      gain.gain.linearRampToValueAtTime(0.25, t + i * 0.12 + 0.02)
-      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.18)
-      osc.start(t + i * 0.12); osc.stop(t + i * 0.12 + 0.2)
-    })
+    const play = () => {
+      const t = ctx.currentTime
+      ;[880, 1100].forEach((freq, i) => {
+        const osc  = ctx.createOscillator()
+        const gain = ctx.createGain()
+        osc.connect(gain); gain.connect(ctx.destination)
+        osc.type = 'sine'
+        osc.frequency.value = freq
+        gain.gain.setValueAtTime(0, t + i * 0.12)
+        gain.gain.linearRampToValueAtTime(0.3, t + i * 0.12 + 0.02)
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.18)
+        osc.start(t + i * 0.12); osc.stop(t + i * 0.12 + 0.25)
+      })
+    }
+    if (ctx.state === 'suspended') { ctx.resume().then(play) } else { play() }
   } catch(e) {}
 }
 
 function playWrongSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)()
-    const osc  = ctx.createOscillator()
-    const gain = ctx.createGain()
-    osc.connect(gain); gain.connect(ctx.destination)
-    osc.type = 'sawtooth'
-    osc.frequency.setValueAtTime(300, ctx.currentTime)
-    osc.frequency.linearRampToValueAtTime(180, ctx.currentTime + 0.3)
-    gain.gain.setValueAtTime(0.18, ctx.currentTime)
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35)
+    const play = () => {
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.type = 'sawtooth'
+      osc.frequency.setValueAtTime(300, ctx.currentTime)
+      osc.frequency.linearRampToValueAtTime(180, ctx.currentTime + 0.3)
+      gain.gain.setValueAtTime(0.18, ctx.currentTime)
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
+      osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35)
+    }
+    if (ctx.state === 'suspended') { ctx.resume().then(play) } else { play() }
   } catch(e) {}
 }
 
@@ -188,7 +193,7 @@ export default function Quiz({ lessonId, onFinish }) {
       <div style={{ textAlign:'center' }}>
         <div style={{ color:'var(--text-muted)', fontSize:12, fontWeight:600, marginBottom:10 }}>Soru {idx+1}/{questions.length}</div>
         <div style={{ color:'var(--navy)', fontWeight:700, fontSize:15, marginBottom:14 }}>{q.prompt}</div>
-        <button onClick={()=>speak(q.question)} style={{
+        <button style={{
           fontFamily:'var(--font-arabic)', fontSize: q.question.length>20?32:q.question.length>8?42:60,
           color:'var(--navy)', background:'var(--cream)',
           border:'2px solid var(--border)', borderRadius:20, padding:'18px 28px',
@@ -199,7 +204,7 @@ export default function Quiz({ lessonId, onFinish }) {
         }}>
           {q.question}
         </button>
-        <div style={{ color:'var(--text-light)', fontSize:11, marginTop:6 }}>🔊 Sese basmak için dokun</div>
+
       </div>
 
       {showHint && selected && selected !== q.correct && (
