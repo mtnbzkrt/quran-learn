@@ -292,6 +292,7 @@ export default function QuranView({ onSubView }) {
           )
         })}
       </div>
+      <div style={{textAlign:'center',padding:'8px',color:'#cbd5e1',fontSize:10}}>v8 · quran-learn</div>
     </div>
   )
 }

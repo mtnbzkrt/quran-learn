@@ -27,6 +27,8 @@ export default defineConfig({
       workbox: {
         // Quran JSON dosyalarını precache'e ALMA — çok büyük
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        skipWaiting: true,
+        clientsClaim: true,
         globIgnores: ['quran/**'],
         runtimeCaching: [
           // Google Fonts
