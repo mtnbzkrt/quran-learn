@@ -6,7 +6,7 @@ const STORAGE_KEY = 'dhikr-data'
 function loadData() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}') } catch { return {} } }
 function saveData(d) { localStorage.setItem(STORAGE_KEY, JSON.stringify(d)) }
 
-export default function DhikrView({ onStatsChange }) {
+export default function DhikrView({ onStatsChange, onSubView }) {
   const [data, setData]       = useState(loadData)
   const [cat, setCat]         = useState('hepsi')
   const [active, setActive]   = useState(null)
@@ -21,6 +21,9 @@ export default function DhikrView({ onStatsChange }) {
 
   const getCount   = (id) => data.counts?.[id]||0
   const getSession = (id) => data.sessions?.[id]||0
+
+  const openActive = (id) => { onSubView?.(true); setActive(id) }
+  const closeActive = () => { onSubView?.(false); setActive(null) }
 
   const tap = (z) => {
     const counts   = {...(data.counts||{}),  [z.id]:(data.counts?.[z.id]||0)+1}
@@ -54,12 +57,12 @@ export default function DhikrView({ onStatsChange }) {
     return (
       <div style={{height:'100%',display:'flex',flexDirection:'column',overflow:'hidden'}}>
         <div style={{background:'linear-gradient(135deg,var(--navy),var(--navy-mid))',padding:'14px 16px',display:'flex',gap:10,alignItems:'center',flexShrink:0}}>
-          <button onClick={()=>setActive(null)} style={{background:'rgba(255,255,255,0.12)',border:'none',color:'white',width:36,height:36,borderRadius:10,cursor:'pointer',fontSize:16}}>←</button>
+          <button onClick={()=>closeActive()} style={{background:'rgba(255,255,255,0.12)',border:'none',color:'white',width:36,height:36,borderRadius:10,cursor:'pointer',fontSize:16}}>←</button>
           <div style={{flex:1}}>
             <div style={{color:'rgba(255,255,255,0.5)',fontSize:11}}>Aktif Zikir</div>
             <div style={{color:'white',fontWeight:800,fontSize:15}}>{z.emoji} {z.tr}</div>
           </div>
-          <button onClick={()=>{setActive(null);setShowDetail(z)}} style={{background:'rgba(255,255,255,0.12)',border:'none',color:'rgba(255,255,255,0.7)',width:36,height:36,borderRadius:10,cursor:'pointer',fontSize:16}}>ℹ️</button>
+          <button onClick={()=>{closeActive();setShowDetail(z)}} style={{background:'rgba(255,255,255,0.12)',border:'none',color:'rgba(255,255,255,0.7)',width:36,height:36,borderRadius:10,cursor:'pointer',fontSize:16}}>ℹ️</button>
         </div>
         <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'24px 20px',gap:18,background:'var(--cream)'}}>
           <div style={{fontFamily:'var(--font-arabic)',fontSize:30,color:'var(--navy)',textAlign:'center',lineHeight:1.8,direction:'rtl',padding:'16px 20px',background:'white',borderRadius:18,border:'1px solid var(--border)',boxShadow:'var(--shadow-sm)',width:'100%'}}>
@@ -111,12 +114,15 @@ export default function DhikrView({ onStatsChange }) {
   }
 
   // ── Detay ekranı ──────────────────────────────────────────────────────────
+  const openDetail = (z) => { onSubView?.(true); setShowDetail(z) }
+  const closeDetail = () => { onSubView?.(false); setShowDetail(null) }
+
   if (showDetail) {
     const z=showDetail
     return (
       <div style={{height:'100%',display:'flex',flexDirection:'column',overflow:'hidden'}}>
         <div style={{background:'linear-gradient(135deg,var(--navy),var(--navy-mid))',padding:'14px 16px',display:'flex',gap:10,alignItems:'center',flexShrink:0}}>
-          <button onClick={()=>setShowDetail(null)} style={{background:'rgba(255,255,255,0.12)',border:'none',color:'white',width:36,height:36,borderRadius:10,cursor:'pointer',fontSize:16}}>←</button>
+          <button onClick={()=>closeDetail()} style={{background:'rgba(255,255,255,0.12)',border:'none',color:'white',width:36,height:36,borderRadius:10,cursor:'pointer',fontSize:16}}>←</button>
           <div style={{color:'white',fontWeight:800,fontSize:15}}>{z.emoji} {z.tr}</div>
         </div>
         <div className="scroll-y" style={{flex:1,padding:'16px 14px',display:'flex',flexDirection:'column',gap:12}}>
@@ -127,7 +133,7 @@ export default function DhikrView({ onStatsChange }) {
           <InfoCard icon="📖" title="Anlamı"              text={z.anlam}/>
           <InfoCard icon="🎯" title={`Önerilen: ${z.adet} defa`} text={z.fazilet}/>
           <InfoCard icon="📚" title="İmam Gazali — İhya'dan" text={z.gazali||'Bu zikir için özel not eklenmemiş.'} dark/>
-          <button onClick={()=>{setShowDetail(null);setActive(z.id)}} style={{padding:'16px',background:'linear-gradient(135deg,var(--gold),var(--gold-light))',color:'var(--navy)',border:'none',borderRadius:16,fontSize:16,fontWeight:800,cursor:'pointer',fontFamily:'var(--font-ui)'}}>
+          <button onClick={()=>{closeDetail();openActive(z.id)}} style={{padding:'16px',background:'linear-gradient(135deg,var(--gold),var(--gold-light))',color:'var(--navy)',border:'none',borderRadius:16,fontSize:16,fontWeight:800,cursor:'pointer',fontFamily:'var(--font-ui)'}}>
             {z.emoji} Zikre Başla
           </button>
         </div>
@@ -179,10 +185,10 @@ export default function DhikrView({ onStatsChange }) {
                 <div style={{fontSize:10,color:'var(--text-muted)',marginTop:2}}>{session}/{z.adet} bu turda</div>
               </div>}
               <div style={{display:'flex',gap:8,marginTop:10}}>
-                <button onClick={()=>setActive(z.id)} style={{flex:1,padding:'10px',background:'linear-gradient(135deg,var(--navy),var(--navy-mid))',color:'white',border:'none',borderRadius:10,cursor:'pointer',fontWeight:700,fontSize:13,fontFamily:'var(--font-ui)'}}>
+                <button onClick={()=>openActive(z.id)} style={{flex:1,padding:'10px',background:'linear-gradient(135deg,var(--navy),var(--navy-mid))',color:'white',border:'none',borderRadius:10,cursor:'pointer',fontWeight:700,fontSize:13,fontFamily:'var(--font-ui)'}}>
                   {session===0?'▶ Başla':`▶ Devam (${session}/${z.adet})`}
                 </button>
-                <button onClick={()=>setShowDetail(z)} style={{padding:'10px 14px',background:'var(--cream)',border:'1px solid var(--border)',borderRadius:10,cursor:'pointer',fontSize:13}}>ℹ️</button>
+                <button onClick={()=>openDetail(z)} style={{padding:'10px 14px',background:'var(--cream)',border:'1px solid var(--border)',borderRadius:10,cursor:'pointer',fontSize:13}}>ℹ️</button>
               </div>
             </div>
           )

@@ -3,7 +3,7 @@ import { ASMA, ASMA_CATEGORIES } from '../data/asma'
 import { calcEbced } from '../utils/ebced'
 import { speak } from '../utils/audio'
 
-export default function AsmaView() {
+export default function AsmaView({ onSubView }) {
   const [search, setSearch] = useState('')
   const [cat, setCat] = useState(0)
   const [detail, setDetail] = useState(null)
@@ -23,13 +23,16 @@ export default function AsmaView() {
     return list
   }, [search, cat])
 
+  const openDetail = (a) => { onSubView?.(true); setDetail(a) }
+  const closeDetail = () => { onSubView?.(false); setDetail(null) }
+
   if (detail) {
     const a = detail
     const ebced = calcEbced(a.ar)
     return (
       <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
         <div style={{ background:'linear-gradient(135deg,#b45309,#d97706)', padding:'14px 16px', display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
-          <button onClick={() => setDetail(null)} style={{ background:'rgba(255,255,255,0.2)', border:'none', color:'white', width:36, height:36, borderRadius:10, cursor:'pointer', fontSize:16 }}>←</button>
+          <button onClick={() => closeDetail()} style={{ background:'rgba(255,255,255,0.2)', border:'none', color:'white', width:36, height:36, borderRadius:10, cursor:'pointer', fontSize:16 }}>←</button>
           <div style={{ flex:1 }}>
             <div style={{ color:'rgba(255,255,255,0.7)', fontSize:11 }}>Esmaül Hüsna — {a.id}/99</div>
             <div style={{ color:'white', fontWeight:800, fontSize:15 }}>{a.tr}</div>
@@ -127,7 +130,7 @@ export default function AsmaView() {
         {filtered.map(a => {
           const isFav = favorites.includes(a.id)
           return (
-            <button key={a.id} onClick={() => setDetail(a)} style={{
+            <button key={a.id} onClick={() => openDetail(a)} style={{
               background:'white', border: isFav ? '2px solid #fcd34d' : '1px solid #e5e7eb',
               borderRadius:16, padding:'14px 12px', cursor:'pointer', textAlign:'center',
               boxShadow:'0 2px 8px rgba(0,0,0,0.07)', display:'flex', flexDirection:'column', gap:6, alignItems:'center',

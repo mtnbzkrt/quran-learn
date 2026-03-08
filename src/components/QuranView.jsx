@@ -36,7 +36,7 @@ function audioUrl(globalNum) {
 }
 
 // ─── Ana Bileşen ─────────────────────────────────────────────────────────────
-export default function QuranView() {
+export default function QuranView({ onSubView }) {
   const [progress, setProgress]     = useState(loadProgress)
   const [search,   setSearch]       = useState('')
   const [cuz,      setCuz]          = useState(0)
@@ -67,6 +67,7 @@ export default function QuranView() {
   // ── Sure aç ──────────────────────────────────────────────────────────────
   const openSurah = async (s) => {
     audioRef.current.pause(); playingRef.current = false
+    onSubView?.(true)
     setSurah(s); setAyahs(null); setLoading(true)
     setCurIdx(null); setPlaying(false); setStopped(false)
     resumeIdxRef.current = 0; setError(null)
@@ -145,7 +146,7 @@ export default function QuranView() {
 
         {/* ── Başlık ────────────────────────────────────────────────────── */}
         <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy-mid))', padding:'14px 16px', display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
-          <button onClick={() => { stopPlayback(); setSurah(null); setAyahs(null) }}
+          <button onClick={() => { stopPlayback(); setSurah(null); setAyahs(null); onSubView?.(false) }}
             style={{ background:'rgba(255,255,255,0.12)', border:'none', color:'white', width:36, height:36, borderRadius:10, cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>←</button>
           <div style={{ flex:1 }}>
             <div style={{ color:'rgba(255,255,255,0.45)', fontSize:11 }}>Sure {surah.n} · {surah.ayet} ayet · {surah.cüz}. cüz</div>
