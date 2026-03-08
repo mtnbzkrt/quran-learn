@@ -9,11 +9,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png'],
       manifest: {
-        name: "Kur'an Öğreniyorum",
-        short_name: "Kur'an",
-        description: "38 ders ile Kur'an okumayı öğren",
-        theme_color: '#1a5c1a',
-        background_color: '#f0f7f0',
+        name: 'Nûr — Kur\'an Öğren',
+        short_name: 'Nûr',
+        description: 'Kur\'an okumayı öğren, namaz vakitleri, zikir, Esmaül Hüsna',
+        theme_color: '#0f2040',
+        background_color: '#f8f5ef',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
@@ -25,15 +25,36 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Quran JSON dosyalarını precache'e ALMA — çok büyük
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['quran/**'],
         runtimeCaching: [
+          // Google Fonts
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
             handler: 'CacheFirst',
             options: { cacheName: 'google-fonts', expiration: { maxEntries: 10, maxAgeSeconds: 60*60*24*365 } }
+          },
+          // Sure JSON'ları — açıldığında cache'le, sonra offline çalışsın
+          {
+            urlPattern: /\/quran\/\d+\.json$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'quran-surahs',
+              expiration: { maxEntries: 114, maxAgeSeconds: 60*60*24*365 },
+            }
+          },
+          // Kuran audio CDN
+          {
+            urlPattern: /^https:\/\/cdn\.islamic\.network\/quran\/audio\/.*/i,
+            handler: 'CacheFirst',
+            options: { cacheName: 'quran-audio', expiration: { maxEntries: 200, maxAgeSeconds: 60*60*24*30 } }
           }
         ]
       }
     })
-  ]
+  ],
+  build: {
+    chunkSizeWarningLimit: 600,
+  }
 })
