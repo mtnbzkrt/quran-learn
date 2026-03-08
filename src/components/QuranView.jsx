@@ -207,9 +207,9 @@ export default function QuranView({ onSubView }) {
                     </div>
                   ) : <span style={{ fontSize:10, color:'#94a3b8' }}>▶</span>}
                 </div>
-                <p dir="rtl" lang="ar" style={{ margin:0, fontSize:24, color:'#1a1a2e', textAlign:'right', lineHeight:2.1, unicodeBidi:'embed' }}>
+                <div style={{ direction:'rtl', textAlign:'right', fontSize:22, color:'#1a1a2e', lineHeight:1.8, marginTop:6, wordBreak:'break-word' }}>
                   {a.t}
-                </p>
+                </div>
               </div>
             )
           })}
@@ -292,7 +292,7 @@ export default function QuranView({ onSubView }) {
           )
         })}
       </div>
-      <div style={{textAlign:'center',padding:'8px',color:'#cbd5e1',fontSize:10}}>v8 · quran-learn</div>
+      <div style={{textAlign:'center',padding:'8px',color:'#cbd5e1',fontSize:10}}>v9 · quran-learn</div>
     </div>
   )
 }
