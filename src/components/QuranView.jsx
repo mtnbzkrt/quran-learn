@@ -88,12 +88,24 @@ export default function QuranView({ onSubView }) {
     playingRef.current = true
     setPlaying(true); setStopped(false)
 
+    // Preload için ikinci Audio nesnesi
+    let preload = null
+
     for (let i = fromIdx; i < ayahs.length; i++) {
       if (!playingRef.current) { resumeIdx.current = i; break }
       setCurIdx(i); resumeIdx.current = i
+
+      // Bir sonraki ayeti arka planda yüklemeye başla
+      const next = ayahs[i + 1]
+      if (next) {
+        preload = new Audio()
+        preload.preload = 'auto'
+        preload.src = audioUrl(next.n)
+      }
+
       await playOne(audioUrl(ayahs[i].n))
       if (!playingRef.current) { resumeIdx.current = i; break }
-      await new Promise(r => setTimeout(r, 200))
+      // Gecikme yok — direkt devam
     }
 
     if (playingRef.current) {
@@ -104,6 +116,7 @@ export default function QuranView({ onSubView }) {
       setPlaying(false); setStopped(true)
     }
     playingRef.current = false
+    preload = null
   }, [ayahs, surah, progress])
 
   const jumpTo = useCallback((i) => {
