@@ -20,13 +20,13 @@ export default function Home({ progress, streak, onLesson }) {
           </div>
           <div style={{ display:'flex', gap:8 }}>
             {/* Streak */}
-            <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:14, padding:'8px 12px', textAlign:'center' }}>
+            <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:14, padding:'8px 12px', textAlign:'center' }}>
               <div style={{ fontSize:18 }}>🔥</div>
               <div style={{ color:'white', fontWeight:800, fontSize:14, marginTop:2 }}>{streak.current}</div>
               <div style={{ color:'rgba(255,255,255,0.7)', fontSize:10 }}>gün</div>
             </div>
             {/* Stars */}
-            <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:14, padding:'8px 12px', textAlign:'center' }}>
+            <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:14, padding:'8px 12px', textAlign:'center' }}>
               <div style={{ fontSize:18 }}>⭐</div>
               <div style={{ color:'white', fontWeight:800, fontSize:14, marginTop:2 }}>{stars}</div>
               <div style={{ color:'rgba(255,255,255,0.7)', fontSize:10 }}>yıldız</div>
@@ -35,13 +35,13 @@ export default function Home({ progress, streak, onLesson }) {
         </div>
 
         {/* Progress bar */}
-        <div style={{ background:'rgba(255,255,255,0.15)', borderRadius:12, padding:'10px 12px' }}>
+        <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:12, padding:'10px 12px' }}>
           <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
             <span style={{ color:'rgba(255,255,255,0.85)', fontSize:12, fontWeight:600 }}>İlerleme</span>
             <span style={{ color:'white', fontWeight:800, fontSize:12 }}>{done}/{TOTAL_LESSONS} ders · %{pct}</span>
           </div>
           <div style={{ background:'rgba(255,255,255,0.2)', borderRadius:100, height:8 }}>
-            <div style={{ height:'100%', background:'#fde68a', borderRadius:100, width:`${pct}%`, transition:'width 0.6s', minWidth: done > 0 ? 8 : 0 }}/>
+            <div style={{ height:'100%', background:'var(--gold)', borderRadius:100, width:`${pct}%`, transition:'width 0.6s', minWidth: done > 0 ? 8 : 0 }}/>
           </div>
         </div>
 
@@ -70,7 +70,7 @@ export default function Home({ progress, streak, onLesson }) {
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
                   <span style={{ fontSize:18 }}>{section.emoji}</span>
                   <div>
-                    <div style={{ fontWeight:800, color:'#1e1b4b', fontSize:14 }}>{section.title}</div>
+                    <div style={{ fontWeight:800, color:'var(--navy)', fontSize:14 }}>{section.title}</div>
                     <div style={{ fontSize:11, color:'#6b7280' }}>{section.sub}</div>
                   </div>
                 </div>
@@ -157,7 +157,7 @@ function StatsPanel({ progress, streak, stars, done }) {
 
       {/* Bölüm bazlı ilerleme */}
       <div style={{ background:'white', borderRadius:16, padding:'16px', boxShadow:'0 2px 8px rgba(0,0,0,0.06)' }}>
-        <div style={{ fontWeight:800, color:'#1e1b4b', fontSize:14, marginBottom:12 }}>Bölüm İlerlemesi</div>
+        <div style={{ fontWeight:800, color:'var(--navy)', fontSize:14, marginBottom:12 }}>Bölüm İlerlemesi</div>
         {sectionData.map((sec, i) => {
           const total = sec.lessons.length
           const doneCount = sec.lessons.filter(l => progress[l]?.done).length
@@ -183,10 +183,10 @@ function StatsPanel({ progress, streak, stars, done }) {
 
       {/* Motivasyon mesajı */}
       <div style={{ background:'linear-gradient(135deg,#7c3aed22,#a855f722)', border:'2px solid #ddd6fe', borderRadius:16, padding:'16px', textAlign:'center' }}>
-        {done === 0 && <div><div style={{ fontSize:32, marginBottom:8 }}>🌱</div><div style={{ fontWeight:700, color:'#1e1b4b', fontSize:14 }}>Yolculuk başlıyor!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>İlk derse başla ve ilerlemeye başla.</div></div>}
-        {done > 0 && done < 10 && <div><div style={{ fontSize:32, marginBottom:8 }}>🚀</div><div style={{ fontWeight:700, color:'#1e1b4b', fontSize:14 }}>Harika gidiyorsun!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>Her gün biraz daha ilerle.</div></div>}
-        {done >= 10 && done < TOTAL_LESSONS && <div><div style={{ fontSize:32, marginBottom:8 }}>🌟</div><div style={{ fontWeight:700, color:'#1e1b4b', fontSize:14 }}>Çok iyi ilerliyorsun!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>{TOTAL_LESSONS - done} ders kaldı, bitirmek üzeresin!</div></div>}
-        {done === TOTAL_LESSONS && <div><div style={{ fontSize:32, marginBottom:8 }}>🏆</div><div style={{ fontWeight:700, color:'#1e1b4b', fontSize:14 }}>Tüm dersler tamamlandı!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>Harika bir başarı, maşallah!</div></div>}
+        {done === 0 && <div><div style={{ fontSize:32, marginBottom:8 }}>🌱</div><div style={{ fontWeight:700, color:'var(--navy)', fontSize:14 }}>Yolculuk başlıyor!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>İlk derse başla ve ilerlemeye başla.</div></div>}
+        {done > 0 && done < 10 && <div><div style={{ fontSize:32, marginBottom:8 }}>🚀</div><div style={{ fontWeight:700, color:'var(--navy)', fontSize:14 }}>Harika gidiyorsun!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>Her gün biraz daha ilerle.</div></div>}
+        {done >= 10 && done < TOTAL_LESSONS && <div><div style={{ fontSize:32, marginBottom:8 }}>🌟</div><div style={{ fontWeight:700, color:'var(--navy)', fontSize:14 }}>Çok iyi ilerliyorsun!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>{TOTAL_LESSONS - done} ders kaldı, bitirmek üzeresin!</div></div>}
+        {done === TOTAL_LESSONS && <div><div style={{ fontSize:32, marginBottom:8 }}>🏆</div><div style={{ fontWeight:700, color:'var(--navy)', fontSize:14 }}>Tüm dersler tamamlandı!</div><div style={{ color:'#6b7280', fontSize:13, marginTop:4 }}>Harika bir başarı, maşallah!</div></div>}
       </div>
     </div>
   )

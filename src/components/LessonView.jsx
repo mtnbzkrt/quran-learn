@@ -116,7 +116,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               )
             })}
           </div>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:`linear-gradient(135deg,${h.color},${h.color}cc)`, color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -136,7 +136,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10 }}>
             {filtered.map((s, i) => <SyllableCard key={i} s={s} idx={i}/>)}
           </div>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,#0891b2,#0ea5e9)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -165,7 +165,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               <span style={{ marginLeft:'auto', fontSize:20 }}>🔊</span>
             </button>
           ))}
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,#16a34a,#22c55e)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer', marginTop:4 }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer', marginTop:4 }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -200,7 +200,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               <div style={{ display:'grid', gridTemplateColumns:'80px repeat(4,1fr)', gap:4 }}>
                 <div/>
                 {[
-                  { form: lf.isolated, color:'#7c3aed' },
+                  { form: lf.isolated, color:'var(--navy)' },
                   { form: lf.initial,  color:'#0891b2' },
                   { form: lf.medial,   color:'#16a34a' },
                   { form: lf.final,    color:'#dc2626' },
@@ -230,7 +230,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
             </div>
           </div>
 
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,#7e22ce,#a855f7)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -270,7 +270,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               </button>
             ))}
           </div>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:`linear-gradient(135deg,${h.color},#818cf8)`, color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -310,7 +310,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               </button>
             ))}
           </div>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:`linear-gradient(135deg,${h.color},#f472b6)`, color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -358,7 +358,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
               </button>
             ))}
           </div>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:`linear-gradient(135deg,${h.color},#fbbf24)`, color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -385,14 +385,14 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
                 <SpeakBtn text={a.ar} size={22}/>
               </div>
               <div style={{ fontFamily:'Amiri, serif', fontSize:26, color:'#1e1b4b', textAlign:'right', lineHeight:2, marginBottom:6 }}>{a.ar}</div>
-              <div style={{ fontSize:13, color:'#7c3aed', fontStyle:'italic', marginBottom:3 }}>{a.tr}</div>
+              <div style={{ fontSize:13, color:'var(--navy)', fontStyle:'italic', marginBottom:3 }}>{a.tr}</div>
               <div style={{ fontSize:12, color:'#6b7280' }}>{a.meaning}</div>
             </div>
           ))}
           <button onClick={() => playSurahAudio(lessonId)} style={{ padding:'14px', background:'#fff7ed', border:'2px solid #fed7aa', borderRadius:12, color:'#9a3412', fontWeight:700, cursor:'pointer', fontSize:14 }}>
             🔊 Tamamını Dinle
           </button>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,#b45309,#d97706)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -407,20 +407,20 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
     const msgs = ['Harika!','Süper!','Mükemmel!','Aferin!']
     const msg = msgs[Math.floor(Math.random() * msgs.length)]
     return (
-      <div style={{ height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:28, background:'#fef9f0', gap:14 }}>
+      <div style={{ height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:28, background:'var(--cream)', gap:14 }}>
         <div style={{ fontSize:72 }}>🎉</div>
         <div style={{ fontWeight:800, fontSize:26, color:'#1e1b4b', textAlign:'center' }}>{msg}</div>
         <div style={{ fontSize:22, textAlign:'center', letterSpacing:4 }}>{'⭐'.repeat(stars)}{'☆'.repeat(3-stars)}</div>
         <div style={{ color:'#6b7280', fontSize:15, textAlign:'center' }}>+{stars} yıldız kazandın!</div>
         {stars < 3 && (
           <button onClick={() => { setPhase(lessonId === 'mixed-review' ? 'quiz' : 'learn') }} style={{
-            padding:'14px 28px', background:'white', border:'2px solid #7c3aed', borderRadius:14,
-            color:'#7c3aed', fontWeight:700, fontSize:15, cursor:'pointer'
+            padding:'14px 28px', background:'white', border:'1px solid var(--border)', borderRadius:14,
+            color:'var(--navy)', fontWeight:700, fontSize:15, cursor:'pointer'
           }}>
             🔄 Tekrar Dene
           </button>
         )}
-        <button onClick={onBack} style={{ padding:'16px 36px', background:'linear-gradient(135deg,#7c3aed,#a855f7)', color:'white', border:'none', borderRadius:16, fontSize:17, fontWeight:800, cursor:'pointer', boxShadow:'0 4px 16px #7c3aed55' }}>
+        <button onClick={onBack} style={{ padding:'16px 36px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', border:'none', borderRadius:16, fontSize:17, fontWeight:800, cursor:'pointer', boxShadow:'var(--shadow-md)' }}>
           Ana Sayfaya Dön 🏠
         </button>
       </div>
@@ -442,7 +442,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
       <div style={{ background:'linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%)', padding:'14px 16px', flexShrink:0, display:'flex', alignItems:'center', gap:10 }}>
         <button onClick={onBack} style={{ width:36, height:36, borderRadius:10, background:'rgba(255,255,255,0.2)', border:'none', color:'white', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>←</button>
         <div style={{ flex:1 }}>
-          <div style={{ color:'rgba(255,255,255,0.7)', fontSize:11 }}>{phase==='quiz' ? '📝 Quiz Zamanı!' : '📖 Öğreniyoruz'}</div>
+          <div style={{ color:'rgba(255,255,255,0.5)', fontSize:11 }}>{phase==='quiz' ? '📝 Quiz Zamanı!' : '📖 Öğreniyoruz'}</div>
           <div style={{ color:'white', fontWeight:800, fontSize:15 }}>{LESSON_TITLES[lessonId]}</div>
         </div>
         {isDone && <div style={{ background:'rgba(255,255,255,0.2)', borderRadius:20, padding:'4px 10px' }}><span style={{ color:'white', fontSize:11, fontWeight:700 }}>✅ Tamam</span></div>}

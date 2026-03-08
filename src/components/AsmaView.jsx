@@ -41,30 +41,30 @@ export default function AsmaView() {
         <div style={{ flex:1, overflowY:'auto', padding:'16px 14px', display:'flex', flexDirection:'column', gap:12 }}>
           {/* Büyük isim kartı */}
           <div style={{ background:'linear-gradient(135deg,#fff7ed,#fef3c7)', border:'2px solid #fcd34d', borderRadius:20, padding:'24px', textAlign:'center' }}>
-            <div style={{ color:'#b45309', fontSize:11, fontWeight:700, marginBottom:6 }}>#{a.id}</div>
+            <div style={{ color:'var(--gold)', fontSize:11, fontWeight:700, marginBottom:6 }}>#{a.id}</div>
             <button onClick={() => speak(a.ar)} style={{ background:'none', border:'none', cursor:'pointer', display:'block', width:'100%' }}>
-              <div style={{ fontFamily:'Amiri, serif', fontSize:52, color:'#92400e', lineHeight:1.4, direction:'rtl', marginBottom:10 }}>{a.ar}</div>
+              <div style={{ fontFamily:'Amiri, serif', fontSize:52, color:'var(--navy)', lineHeight:1.4, direction:'rtl', marginBottom:10 }}>{a.ar}</div>
             </button>
-            <div style={{ fontWeight:800, color:'#92400e', fontSize:20, marginBottom:4 }}>{a.tr}</div>
+            <div style={{ fontWeight:800, color:'var(--navy)', fontSize:20, marginBottom:4 }}>{a.tr}</div>
             <div style={{ color:'#9ca3af', fontSize:12 }}>🔊 isme dokunarak dinle</div>
           </div>
 
           {/* Ebced değeri */}
           <div style={{ background:'white', borderRadius:16, padding:'14px', border:'2px solid #fde68a', display:'flex', alignItems:'center', gap:14 }}>
             <div style={{ background:'#fef9c3', borderRadius:12, padding:'10px 14px', textAlign:'center' }}>
-              <div style={{ fontWeight:900, fontSize:24, color:'#b45309' }}>{ebced}</div>
-              <div style={{ fontSize:10, color:'#92400e', fontWeight:700 }}>Ebced</div>
+              <div style={{ fontWeight:900, fontSize:24, color:'var(--gold)' }}>{ebced}</div>
+              <div style={{ fontSize:10, color:'var(--navy)', fontWeight:700 }}>Ebced</div>
             </div>
             <div>
               <div style={{ fontWeight:700, color:'#1e1b4b', fontSize:13 }}>Ebced Değeri</div>
               <div style={{ color:'#6b7280', fontSize:12 }}>Her Arap harfinin sayısal karşılığının toplamı</div>
-              <div style={{ color:'#b45309', fontSize:12, marginTop:2 }}>Bu değerce zikir okunabilir</div>
+              <div style={{ color:'var(--gold)', fontSize:12, marginTop:2 }}>Bu değerce zikir okunabilir</div>
             </div>
           </div>
 
           {/* Anlam */}
           <div style={{ background:'white', borderRadius:14, padding:'14px', border:'1px solid #e5e7eb' }}>
-            <div style={{ fontWeight:800, color:'#b45309', fontSize:13, marginBottom:6 }}>📖 Anlamı</div>
+            <div style={{ fontWeight:800, color:'var(--gold)', fontSize:13, marginBottom:6 }}>📖 Anlamı</div>
             <div style={{ color:'#374151', fontSize:14, lineHeight:1.6 }}>{a.anlam}</div>
           </div>
 
@@ -81,7 +81,7 @@ export default function AsmaView() {
           </div>
 
           {/* Zikir butonu */}
-          <button onClick={() => speak(a.ar)} style={{ padding:'16px', background:'linear-gradient(135deg,#b45309,#d97706)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
+          <button onClick={() => speak(a.ar)} style={{ padding:'16px', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', color:'var(--navy)', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer' }}>
             🔊 Sesini Dinle
           </button>
         </div>
@@ -92,7 +92,7 @@ export default function AsmaView() {
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
       {/* Header */}
-      <div style={{ background:'linear-gradient(135deg,#92400e,#b45309)', padding:'14px 16px', flexShrink:0 }}>
+      <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy-mid))', padding:'14px 16px', flexShrink:0 }}>
         <div style={{ color:'white', fontWeight:800, fontSize:18, marginBottom:10 }}>🌟 Esmaül Hüsna</div>
 
         {/* Arama */}
@@ -119,7 +119,7 @@ export default function AsmaView() {
       {/* Sayı */}
       <div style={{ padding:'10px 14px 4px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
         <div style={{ color:'#6b7280', fontSize:12 }}>{filtered.length} isim</div>
-        {favorites.length > 0 && <div style={{ color:'#b45309', fontSize:12, fontWeight:700 }}>⭐ {favorites.length} favori</div>}
+        {favorites.length > 0 && <div style={{ color:'var(--gold)', fontSize:12, fontWeight:700 }}>⭐ {favorites.length} favori</div>}
       </div>
 
       {/* Grid liste */}
@@ -135,7 +135,7 @@ export default function AsmaView() {
             }}>
               {isFav && <div style={{ position:'absolute', top:6, right:8, fontSize:14 }}>⭐</div>}
               <div style={{ color:'#6b7280', fontSize:10, fontWeight:700 }}>#{a.id}</div>
-              <div style={{ fontFamily:'Amiri, serif', fontSize:28, color:'#b45309', lineHeight:1.2, direction:'rtl' }}>{a.ar}</div>
+              <div style={{ fontFamily:'Amiri, serif', fontSize:28, color:'var(--gold)', lineHeight:1.2, direction:'rtl' }}>{a.ar}</div>
               <div style={{ fontWeight:800, color:'#1e1b4b', fontSize:12 }}>{a.tr}</div>
               <div style={{ color:'#6b7280', fontSize:10, textAlign:'center', lineHeight:1.4 }}>{a.anlam.slice(0,45)}{a.anlam.length > 45 ? '…' : ''}</div>
             </button>
