@@ -54,9 +54,9 @@ function buildQuestions(lessonId) {
     return shuffle(WORDS).slice(0,4).map(w=>({
       question: w.ar,
       questionAr: true,
-      prompt: 'Bu kelimenin anlamı nedir?',
-      correct: w.meaning,
-      options: shuffle([w.meaning, ...shuffle(WORDS.filter(x=>x.ar!==w.ar)).slice(0,3).map(x=>x.meaning)])
+      prompt: 'Bu kelime nasıl okunur?',
+      correct: w.tr,
+      options: shuffle([w.tr, ...shuffle(WORDS.filter(x=>x.ar!==w.ar)).slice(0,3).map(x=>x.tr)])
     }))
   }
   return []
