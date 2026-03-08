@@ -1,0 +1,121 @@
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --navy:        #0f2040;
+  --navy-mid:    #1a3560;
+  --navy-light:  #254880;
+  --gold:        #c9972c;
+  --gold-light:  #e8c46a;
+  --gold-pale:   #fdf6e3;
+  --cream:       #f8f5ef;
+  --card:        #ffffff;
+  --text:        #1a1a2e;
+  --text-muted:  #64748b;
+  --text-light:  #94a3b8;
+  --border:      #e8e0d0;
+  --green:       #1a5c38;
+  --green-light: #e6f4ed;
+  --radius-sm:   10px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --shadow-sm:   0 1px 4px rgba(15,32,64,0.08);
+  --shadow-md:   0 4px 16px rgba(15,32,64,0.12);
+  --shadow-lg:   0 8px 32px rgba(15,32,64,0.16);
+  --font-ui:     'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-arabic: 'Amiri', 'Scheherazade New', serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+  background: var(--cream);
+  font-family: var(--font-ui);
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* İslami geometrik desen — arka plan */
+.islamic-bg {
+  background-color: var(--cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%23c9972c' stroke-width='0.6' opacity='0.18'%3E%3Cpolygon points='40,8 44,22 58,18 48,28 58,42 44,38 40,52 36,38 22,42 32,28 22,18 36,22'/%3E%3Cpolygon points='40,8 44,22 58,18 48,28 58,42 44,38 40,52 36,38 22,42 32,28 22,18 36,22' transform='rotate(22.5,40,40)' opacity='0.5'/%3E%3Ccircle cx='40' cy='40' r='14' stroke-width='0.4'/%3E%3Ccircle cx='40' cy='40' r='22' stroke-width='0.3' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 80px 80px;
+}
+
+/* Scroll */
+.scroll-y {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-x::-webkit-scrollbar { display: none; }
+
+/* Card */
+.card {
+  background: var(--card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+
+/* Butonlar */
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--navy);
+  font-weight: 800;
+  font-family: var(--font-ui);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 14px 20px;
+  font-size: 15px;
+}
+.btn-navy {
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  color: white;
+  font-weight: 700;
+  font-family: var(--font-ui);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  padding: 12px 18px;
+  font-size: 14px;
+}
+
+/* Drawer overlay */
+.drawer-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease;
+}
+.drawer-panel {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 280px; z-index: 201;
+  animation: slideIn 0.28s cubic-bezier(0.32,0.72,0,1);
+}
+@keyframes fadeIn  { from { opacity:0 } to { opacity:1 } }
+@keyframes slideIn { from { transform:translateX(-100%) } to { transform:translateX(0) } }
+
+/* Arabic text */
+.ar { font-family: var(--font-arabic); direction: rtl; }
+
+/* Shimmer loading */
+@keyframes shimmer {
+  0%   { background-position: -200% 0 }
+  100% { background-position:  200% 0 }
+}
+.shimmer {
+  background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+}

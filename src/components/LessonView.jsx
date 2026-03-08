@@ -79,7 +79,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
             {letters.map((l, i) => <LetterCard key={i} letter={l} idx={i} big/>)}
           </div>
-          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg,#7c3aed,#a855f7)', color:'white', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer', boxShadow:'0 4px 16px #7c3aed55' }}>
+          <button onClick={() => setPhase('quiz')} style={{ padding:'16px', background:'linear-gradient(135deg, var(--gold), var(--gold-light))', color:'var(--navy)', border:'none', borderRadius:16, fontSize:16, fontWeight:800, cursor:'pointer', boxShadow:'0 4px 16px rgba(201,151,44,0.4)' }}>
             Quize Geç ✏️
           </button>
         </div>
@@ -439,7 +439,7 @@ export default function LessonView({ lessonId, progress, onComplete, onBack }) {
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-      <div style={{ background:'linear-gradient(135deg,#7c3aed,#a855f7)', padding:'14px 16px', flexShrink:0, display:'flex', alignItems:'center', gap:10 }}>
+      <div style={{ background:'linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%)', padding:'14px 16px', flexShrink:0, display:'flex', alignItems:'center', gap:10 }}>
         <button onClick={onBack} style={{ width:36, height:36, borderRadius:10, background:'rgba(255,255,255,0.2)', border:'none', color:'white', fontSize:16, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}>←</button>
         <div style={{ flex:1 }}>
           <div style={{ color:'rgba(255,255,255,0.7)', fontSize:11 }}>{phase==='quiz' ? '📝 Quiz Zamanı!' : '📖 Öğreniyoruz'}</div>

@@ -12,7 +12,7 @@ export default function Home({ progress, streak, onLesson }) {
     <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden', background:'#fef9f0' }}>
 
       {/* Header */}
-      <div style={{ background:'linear-gradient(135deg,#7c3aed,#a855f7)', padding:'20px 18px 16px', flexShrink:0 }}>
+      <div style={{ background:'linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%)', padding:'20px 18px 16px', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
           <div>
             <div style={{ color:'rgba(255,255,255,0.75)', fontSize:12, fontWeight:600 }}>Hoş geldin! 👋</div>
