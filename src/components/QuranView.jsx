@@ -207,11 +207,8 @@ export default function QuranView({ onSubView }) {
                     </div>
                   ) : <span style={{ fontSize:10, color:'#94a3b8' }}>▶</span>}
                 </div>
-                <div style={{ background:'#ef4444', color:'white', fontSize:13, fontWeight:'bold', padding:'4px 8px', marginTop:4, borderRadius:6 }}>
-                  LEN={a.t?.length||0} | {String(a.t||'').slice(0,3)}
-                </div>
-                <div style={{ direction:'rtl', textAlign:'right', fontSize:22, color:'#000000', lineHeight:1.8, marginTop:4, background:'#fffde7', border:'2px solid orange', minHeight:40, padding:4 }}>
-                  {a.t||'BOŞ'}
+                <div style={{ textAlign:'right', fontSize:22, color:'#1a1a2e', lineHeight:1.9, paddingTop:8 }}>
+                  {a.t}
                 </div>
               </div>
             )
@@ -249,7 +246,7 @@ export default function QuranView({ onSubView }) {
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
           <div>
             <div style={{ color:'white', fontWeight:800, fontSize:17 }}>🎧 Kur'an-ı Kerim</div>
-            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10 }}>v12·debug</div>
+            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10 }}>v1.0</div>
           </div>
           <div style={{ background:'rgba(201,151,44,0.2)', border:'1px solid rgba(201,151,44,0.35)', borderRadius:12, padding:'5px 12px' }}>
             <span style={{ color:'#c9972c', fontWeight:800, fontSize:16 }}>{listenedCount}</span>
