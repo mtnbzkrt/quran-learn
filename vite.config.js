@@ -17,6 +17,7 @@ export default defineConfig({
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',
+        scope: '/',
         lang: 'tr',
         categories: ['education', 'lifestyle'],
         icons: [

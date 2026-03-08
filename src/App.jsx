@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { NurLogo } from './components/Logo'
 import Dashboard   from './components/Dashboard'
 import Home        from './components/Home'
@@ -44,6 +44,15 @@ export default function App() {
   const [quranProg, setQuranProg] = useState(() => {
     try { return JSON.parse(localStorage.getItem('quran-progress')||'{}') } catch { return {} }
   })
+
+  // QuranView localStorage değişince Dashboard'u güncelle
+  useEffect(() => {
+    const handler = () => {
+      try { setQuranProg(JSON.parse(localStorage.getItem('quran-progress')||'{}')) } catch {}
+    }
+    window.addEventListener('storage', handler)
+    return () => window.removeEventListener('storage', handler)
+  }, [])
 
   const completeLesson = useCallback((id, stars) => {
     const u = { ...progress, [id]:{ done:true, stars } }

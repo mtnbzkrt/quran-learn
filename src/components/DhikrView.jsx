@@ -13,6 +13,7 @@ export default function DhikrView({ onStatsChange, onSubView }) {
   const [showAdd, setShowAdd] = useState(false)
   const [showDetail, setShowDetail] = useState(null)
   const [form, setForm]       = useState({ ar:'', tr:'', anlam:'', adet:33, fazilet:'' })
+  const [anim, setAnim]       = useState(false)
 
   const update = (d) => {
     setData(d); saveData(d)
@@ -29,7 +30,7 @@ export default function DhikrView({ onStatsChange, onSubView }) {
     const counts   = {...(data.counts||{}),  [z.id]:(data.counts?.[z.id]||0)+1}
     const sessions = {...(data.sessions||{}), [z.id]:(data.sessions?.[z.id]||0)+1}
     const upd = {...data, counts, sessions}
-    if (sessions[z.id]===z.adet) { speak('أحسنت'); upd.sessions[z.id]=0 }
+    if (sessions[z.id]===z.adet) { upd.sessions[z.id]=0 }
     update(upd)
   }
 
@@ -52,7 +53,6 @@ export default function DhikrView({ onStatsChange, onSubView }) {
     const session=getSession(z.id), total=getCount(z.id)
     const pct=Math.min(100,(session/z.adet)*100)
     const done=pct>=100
-    const [anim,setAnim]=useState(false)
     const doTap=()=>{ setAnim(true); tap(z); setTimeout(()=>setAnim(false),150) }
     return (
       <div style={{height:'100%',display:'flex',flexDirection:'column',overflow:'hidden'}}>
