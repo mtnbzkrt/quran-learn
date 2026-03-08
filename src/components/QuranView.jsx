@@ -131,7 +131,7 @@ export default function QuranView({ onSubView }) {
             <div style={{ color:'rgba(255,255,255,0.45)', fontSize:11 }}>Sure {surah.n} · {surah.ayet} ayet · {surah.cüz}. cüz</div>
             <div style={{ color:'white', fontWeight:800, fontSize:16 }}>{surah.tr} — {surah.anlam}</div>
           </div>
-          <div style={{ fontFamily:"'Amiri','Geeza Pro',serif", fontSize:24, color:'#e8c46a' }}>{surah.ar}</div>
+          <div style={{ fontSize:24, color:'#e8c46a', unicodeBidi:'embed' }}>{surah.ar}</div>
         </div>
 
         <div style={{ background:'#0a1628', padding:'10px 16px', display:'flex', gap:12, alignItems:'center', flexShrink:0, borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
@@ -178,7 +178,7 @@ export default function QuranView({ onSubView }) {
           )}
 
           {ayahs && surah.n !== 9 && (
-            <div style={{ textAlign:'center', padding:'6px 0 2px', fontFamily:"'Amiri','Geeza Pro',serif", fontSize:22, color:'#c9972c', opacity:0.8 }}>
+            <div style={{ textAlign:'center', padding:'6px 0 2px', fontSize:22, color:'#c9972c', opacity:0.8 }}>
               بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
             </div>
           )}
@@ -207,7 +207,7 @@ export default function QuranView({ onSubView }) {
                     </div>
                   ) : <span style={{ fontSize:10, color:'#94a3b8' }}>▶</span>}
                 </div>
-                <p dir="rtl" lang="ar" style={{ margin:0, fontFamily:"'Amiri','Geeza Pro','Arial Unicode MS',serif", fontSize:22, color:'#1a1a2e', textAlign:'right', lineHeight:2 }}>
+                <p dir="rtl" lang="ar" style={{ margin:0, fontSize:24, color:'#1a1a2e', textAlign:'right', lineHeight:2.1, unicodeBidi:'embed' }}>
                   {a.t}
                 </p>
               </div>
@@ -284,7 +284,7 @@ export default function QuranView({ onSubView }) {
                   <span style={{ fontWeight:800, color:'#0f2040', fontSize:14 }}>{s.tr}</span>
                   {SURAH_FAZILET[s.n] && <span style={{ fontSize:9, background:'#fdf6e3', color:'#c9972c', padding:'2px 5px', borderRadius:5, fontWeight:700, border:'1px solid rgba(201,151,44,0.3)' }}>★</span>}
                 </div>
-                <div style={{ fontFamily:"'Amiri','Geeza Pro',serif", fontSize:13, color:'#64748b', direction:'rtl', display:'inline-block' }}>{s.ar}</div>
+                <div style={{ fontSize:13, color:'#64748b', direction:'rtl', display:'inline-block', unicodeBidi:'embed' }}>{s.ar}</div>
                 <div style={{ fontSize:11, color:'#94a3b8', marginTop:1 }}>{s.anlam} · {s.ayet} ayet · {s.cüz}. cüz</div>
               </div>
               <span style={{ color:'#94a3b8', fontSize:18 }}>›</span>
