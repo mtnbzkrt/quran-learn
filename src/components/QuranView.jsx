@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { SURAHS, SURAH_FAZILET } from '../data/quranSurahs'
 
 const PROGRESS_KEY = 'quran-progress'
-const CACHE_KEY    = 'quran-ayah-cache-v4'
+const CACHE_KEY    = 'quran-ayah-cache-v5'
 
 function loadProgress() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') } catch { return {} } }
 function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)) }
@@ -10,6 +10,20 @@ function loadCache()    { try { return JSON.parse(localStorage.getItem(CACHE_KEY
 function saveCache(c)   { try { localStorage.setItem(CACHE_KEY, JSON.stringify(c)) } catch {} }
 
 // ─── Yardımcılar ────────────────────────────────────────────────────────────
+
+// iOS'ta render olmayan Kuran Unicode karakterlerini temizle
+// (BOM, superscript alef, Quranic annotation signs)
+function stripProblemChars(text) {
+  if (!text) return ''
+  return text
+    .replace(/\uFEFF/g, '')          // BOM
+    .replace(/\u0670/g, 'ا')         // Superscript alef → normal alef
+    .replace(/[\u06D6-\u06ED]/g,'') // Quranic annotation signs
+    .replace(/[\u0610-\u061A]/g,'') // Arabic extended diacritics
+    .trim()
+}
+
+
 
 // Lokal veri haritası: surah no → {ayahs: [{ar, meaning, tr}], verseStart}
 const LOCAL_SURAH_MAP = {
@@ -26,7 +40,7 @@ function getLocalAyahs(surahN) {
   return sura.ayahs.map((a, i) => ({
     number:        entry.verseStart + i,
     numberInSurah: i + 1,
-    text:          a.ar,
+    text:          stripProblemChars(a.ar),
   }))
 }
 
@@ -45,7 +59,7 @@ async function fetchAyahs(surahNum) {
   const ayahData = ayahList.map(a => ({
     number:        a.number,
     numberInSurah: a.numberInSurah,
-    text:          a.text || '',
+    text:          stripProblemChars(a.text),
   }))
   saveCache({ ...cache, [surahNum]: ayahData })
   return ayahData
