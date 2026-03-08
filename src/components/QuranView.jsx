@@ -1,205 +1,394 @@
-import { useState, useRef, useEffect } from 'react'
-import { SURAHS, getAudioUrl, SURAH_FAZILET } from '../data/quranSurahs'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { SURAHS, SURAH_FAZILET } from '../data/quranSurahs'
 
-const STORAGE_KEY = 'quran-progress'
-function loadProgress() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}') } catch { return {} } }
-function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)) }
+const PROGRESS_KEY = 'quran-progress'
+const CACHE_KEY    = 'quran-ayah-cache'
 
+function loadProgress() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') } catch { return {} } }
+function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)) }
+function loadCache()    { try { return JSON.parse(localStorage.getItem(CACHE_KEY)||'{}') }   catch { return {} } }
+function saveCache(c)   { try { localStorage.setItem(CACHE_KEY, JSON.stringify(c)) } catch {} }
+
+// ─── Yardımcılar ────────────────────────────────────────────────────────────
+async function fetchAyahs(surahNum) {
+  const cache = loadCache()
+  if (cache[surahNum]) return cache[surahNum]
+  const res  = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}`)
+  const data = await res.json()
+  const ayahData = data.data.ayahs.map(a => ({
+    number:        a.number,          // global Kuran ayeti (1–6236) — audio URL için
+    numberInSurah: a.numberInSurah,
+    text:          a.text,
+  }))
+  saveCache({ ...cache, [surahNum]: ayahData })
+  return ayahData
+}
+
+function audioUrl(globalNum) {
+  return `https://cdn.islamic.network/quran/audio/128/ar.alafasy/${globalNum}.mp3`
+}
+
+// ─── Ana Bileşen ─────────────────────────────────────────────────────────────
 export default function QuranView() {
-  const [progress, setProgress] = useState(loadProgress)
-  const [playing, setPlaying] = useState(null)
-  const [search, setSearch] = useState('')
-  const [cuz, setCuz] = useState(0) // 0 = hepsi
-  const [detail, setDetail] = useState(null)
-  const [audioState, setAudioState] = useState('idle') // idle|loading|playing|paused
-  const audioRef = useRef(new Audio())
+  const [progress, setProgress]     = useState(loadProgress)
+  const [search,   setSearch]       = useState('')
+  const [cuz,      setCuz]          = useState(0)
+  const [surah,    setSurah]        = useState(null)   // açık sure
+  const [ayahs,    setAyahs]        = useState(null)   // yüklü ayetler
+  const [loading,  setLoading]      = useState(false)
+  const [playing,  setPlaying]      = useState(false)
+  const [stopped,  setStopped]      = useState(false)
+  const [curIdx,   setCurIdx]       = useState(null)   // aktif ayet indexi
+  const [error,    setError]        = useState(null)
 
-  const markListened = (n) => {
-    const p = { ...progress, [n]: true }
+  const audioRef    = useRef(new Audio())
+  const playingRef  = useRef(false)
+  const resumeIdxRef= useRef(0)
+  const ayahRefs    = useRef({})
+
+  // Temizle
+  useEffect(() => () => { audioRef.current.pause(); playingRef.current = false }, [])
+
+  // Aktif ayete scroll
+  useEffect(() => {
+    if (curIdx != null) {
+      const el = ayahRefs.current[curIdx]
+      el?.scrollIntoView({ behavior:'smooth', block:'center' })
+    }
+  }, [curIdx])
+
+  // ── Sure aç ──────────────────────────────────────────────────────────────
+  const openSurah = async (s) => {
+    audioRef.current.pause(); playingRef.current = false
+    setSurah(s); setAyahs(null); setLoading(true)
+    setCurIdx(null); setPlaying(false); setStopped(false)
+    resumeIdxRef.current = 0; setError(null)
+    try {
+      const data = await fetchAyahs(s.n)
+      setAyahs(data)
+    } catch {
+      setError('Ayetler yüklenemedi. İnternet bağlantısını kontrol et.')
+    } finally { setLoading(false) }
+  }
+
+  // ── Tek ayet çal ─────────────────────────────────────────────────────────
+  const playOne = (url) => new Promise(resolve => {
+    const a = audioRef.current
+    a.src = url
+    a.onended  = resolve
+    a.onerror  = resolve   // hata olursa geç
+    a.play().catch(resolve)
+  })
+
+  // ── Sıralı oynatma ───────────────────────────────────────────────────────
+  const startPlayback = useCallback(async (fromIdx = 0) => {
+    if (!ayahs) return
+    playingRef.current = true
+    setPlaying(true); setStopped(false)
+    resumeIdxRef.current = fromIdx
+
+    // Bismillah sesi (sure 1'in 1. ayeti = global 1)
+    if (fromIdx === 0 && surah?.n !== 1 && surah?.n !== 9) {
+      // Bismillah ekranı göster ama seste ayete git
+    }
+
+    for (let i = fromIdx; i < ayahs.length; i++) {
+      if (!playingRef.current) { resumeIdxRef.current = i; break }
+      setCurIdx(i)
+      resumeIdxRef.current = i
+      await playOne(audioUrl(ayahs[i].number))
+      if (!playingRef.current) { resumeIdxRef.current = i; break }
+      await new Promise(r => setTimeout(r, 250))   // ayetler arası nefes
+    }
+
+    if (playingRef.current) {
+      // Tamamlandı
+      const p = { ...progress, [surah.n]: true }
+      setProgress(p); saveProgress(p)
+      setCurIdx(null)
+      setPlaying(false); setStopped(false)
+    } else {
+      setPlaying(false); setStopped(true)
+    }
+    playingRef.current = false
+  }, [ayahs, surah, progress])
+
+  const stopPlayback = () => {
+    playingRef.current = false
+    audioRef.current.pause()
+    setPlaying(false); setStopped(true)
+  }
+
+  const resume = () => startPlayback(resumeIdxRef.current)
+
+  const markDone = () => {
+    const p = { ...progress, [surah.n]: true }
     setProgress(p); saveProgress(p)
   }
 
-  const playStop = (n) => {
-    const audio = audioRef.current
-    if (playing === n) {
-      audio.pause(); setPlaying(null); setAudioState('idle')
-    } else {
-      audio.pause()
-      setAudioState('loading')
-      audio.src = getAudioUrl(n)
-      audio.play()
-        .then(() => { setPlaying(n); setAudioState('playing') })
-        .catch(() => setAudioState('idle'))
-    }
-  }
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SURE DETAY GÖRÜNÜMÜ
+  // ═══════════════════════════════════════════════════════════════════════════
+  if (surah) {
+    const isListened = progress[surah.n]
+    const pct        = ayahs ? (curIdx != null ? ((curIdx+1)/ayahs.length)*100 : (stopped ? ((resumeIdxRef.current+1)/ayahs.length)*100 : 0)) : 0
 
-  useEffect(() => {
-    const audio = audioRef.current
-    const onEnd = () => {
-      if (playing) { markListened(playing) }
-      setPlaying(null); setAudioState('idle')
-    }
-    audio.addEventListener('ended', onEnd)
-    return () => audio.removeEventListener('ended', onEnd)
-  }, [playing])
-
-  // Cleanup on unmount
-  useEffect(() => () => { audioRef.current.pause() }, [])
-
-  const listenedCount = Object.keys(progress).filter(k => progress[k]).length
-  const filtered = SURAHS.filter(s => {
-    const matchSearch = !search || s.tr.toLowerCase().includes(search.toLowerCase()) || s.ar.includes(search) || String(s.n).includes(search)
-    const matchCuz = !cuz || s.cüz === cuz
-    return matchSearch && matchCuz
-  })
-
-  if (detail) {
-    const s = detail
-    const isListened = progress[s.n]
-    const isPlaying = playing === s.n
     return (
       <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-        <div style={{ background:'linear-gradient(135deg,#0f172a,#1e293b)', padding:'14px 16px', display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
-          <button onClick={() => setDetail(null)} style={{ background:'rgba(255,255,255,0.15)', border:'none', color:'white', width:36, height:36, borderRadius:10, cursor:'pointer', fontSize:16 }}>←</button>
+
+        {/* ── Başlık ────────────────────────────────────────────────────── */}
+        <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy-mid))', padding:'14px 16px', display:'flex', gap:10, alignItems:'center', flexShrink:0 }}>
+          <button onClick={() => { stopPlayback(); setSurah(null); setAyahs(null) }}
+            style={{ background:'rgba(255,255,255,0.12)', border:'none', color:'white', width:36, height:36, borderRadius:10, cursor:'pointer', fontSize:16, display:'flex', alignItems:'center', justifyContent:'center' }}>←</button>
           <div style={{ flex:1 }}>
-            <div style={{ color:'rgba(255,255,255,0.6)', fontSize:11 }}>Sure {s.n} · Cüz {s.cüz}</div>
-            <div style={{ color:'white', fontWeight:800, fontSize:16 }}>{s.tr}</div>
+            <div style={{ color:'rgba(255,255,255,0.45)', fontSize:11 }}>Sure {surah.n} · {surah.ayet} ayet · {surah.cüz}. cüz</div>
+            <div style={{ color:'white', fontWeight:800, fontSize:16 }}>{surah.tr} — {surah.anlam}</div>
           </div>
-          {isListened && <div style={{ fontSize:20 }}>✅</div>}
+          <div style={{ fontFamily:'var(--font-arabic)', fontSize:24, color:'var(--gold-light)' }}>{surah.ar}</div>
         </div>
-        <div style={{ flex:1, overflowY:'auto', padding:'16px 14px', display:'flex', flexDirection:'column', gap:12 }}>
-          <div style={{ background:'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius:20, padding:'24px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Amiri, serif', fontSize:52, color:'#fbbf24', direction:'rtl', lineHeight:1.4, marginBottom:8 }}>{s.ar}</div>
-            <div style={{ color:'#94a3b8', fontSize:14, fontWeight:600 }}>{s.tr} — {s.anlam}</div>
-            <div style={{ color:'#64748b', fontSize:12, marginTop:4 }}>{s.ayet} ayet · {s.cüz}. cüz</div>
+
+        {/* ── Player bar ────────────────────────────────────────────────── */}
+        <div style={{ background:'#0a1628', padding:'10px 16px', display:'flex', gap:12, alignItems:'center', flexShrink:0, borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+          {/* Play/Pause/Stop butonu */}
+          {!playing ? (
+            <button onClick={() => stopped ? resume() : startPlayback(0)}
+              disabled={!ayahs || loading}
+              style={{ width:44, height:44, borderRadius:'50%', background:'linear-gradient(135deg,var(--gold),var(--gold-light))', border:'none', color:'var(--navy)', fontSize:20, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:900, boxShadow:'0 2px 12px rgba(201,151,44,0.35)', opacity: (!ayahs||loading)?0.5:1 }}>
+              ▶
+            </button>
+          ) : (
+            <button onClick={stopPlayback}
+              style={{ width:44, height:44, borderRadius:'50%', background:'#dc2626', border:'none', color:'white', fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(220,38,38,0.35)' }}>
+              ⏹
+            </button>
+          )}
+
+          <div style={{ flex:1, minWidth:0 }}>
+            {loading ? (
+              <div style={{ color:'rgba(255,255,255,0.4)', fontSize:12 }}>⏳ Ayetler yükleniyor...</div>
+            ) : playing && curIdx != null ? (
+              <>
+                <div style={{ color:'var(--gold)', fontWeight:700, fontSize:12, marginBottom:5 }}>
+                  🎵 {curIdx+1}. ayet okunuyor
+                </div>
+                <div style={{ background:'rgba(255,255,255,0.08)', borderRadius:100, height:3 }}>
+                  <div style={{ height:'100%', background:'linear-gradient(90deg,var(--gold),var(--gold-light))', borderRadius:100, width:`${pct}%`, transition:'width 0.4s ease' }}/>
+                </div>
+              </>
+            ) : stopped ? (
+              <div style={{ color:'rgba(255,255,255,0.5)', fontSize:12 }}>⏸ {resumeIdxRef.current+1}. ayetten devam edebilirsin</div>
+            ) : (
+              <div style={{ color:'rgba(255,255,255,0.4)', fontSize:12 }}>
+                {isListened ? '✅ Dinlendi · Tekrar dinle' : '▶ Baştan başlat ya da ayete tıkla'}
+              </div>
+            )}
           </div>
 
-          {SURAH_FAZILET[s.n] && (
-            <div style={{ background:'#fff7ed', borderRadius:14, padding:'14px', border:'2px solid #fed7aa' }}>
-              <div style={{ fontWeight:800, color:'#ea580c', fontSize:13, marginBottom:4 }}>🌟 Fazileti</div>
-              <div style={{ color:'#374151', fontSize:13, lineHeight:1.6 }}>{SURAH_FAZILET[s.n]}</div>
+          {curIdx != null && ayahs && (
+            <div style={{ color:'rgba(255,255,255,0.35)', fontSize:11, fontVariantNumeric:'tabular-nums', whiteSpace:'nowrap' }}>{curIdx+1}/{ayahs.length}</div>
+          )}
+        </div>
+
+        {/* ── Ayet listesi ──────────────────────────────────────────────── */}
+        <div className="scroll-y" style={{ flex:1, padding:'12px 14px', display:'flex', flexDirection:'column', gap:10 }}>
+
+          {error && (
+            <div style={{ background:'#fee2e2', border:'1px solid #f87171', borderRadius:14, padding:'14px', textAlign:'center', color:'#991b1b' }}>{error}</div>
+          )}
+
+          {SURAH_FAZILET[surah.n] && !loading && (
+            <div style={{ background:'linear-gradient(135deg,var(--navy),#0a1628)', borderRadius:14, padding:'12px 14px', border:'1px solid rgba(201,151,44,0.2)' }}>
+              <div style={{ color:'var(--gold)', fontSize:11, fontWeight:700, marginBottom:4 }}>🌟 Fazileti</div>
+              <div style={{ color:'rgba(255,255,255,0.8)', fontSize:12, lineHeight:1.6 }}>{SURAH_FAZILET[surah.n]}</div>
             </div>
           )}
 
-          <div style={{ background:'white', borderRadius:14, padding:'14px', border:'1px solid #e5e7eb' }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <div>
-                <div style={{ fontWeight:700, color:'#1e1b4b', fontSize:13 }}>Dinlenme Durumu</div>
-                <div style={{ color: isListened ? '#16a34a' : '#9ca3af', fontSize:13 }}>{isListened ? '✅ Dinlendi' : '⏳ Henüz dinlenmedi'}</div>
-              </div>
-              {!isListened && (
-                <button onClick={() => markListened(s.n)} style={{ background:'#f0fdf4', border:'2px solid #4ade80', color:'#16a34a', padding:'8px 14px', borderRadius:10, cursor:'pointer', fontWeight:700, fontSize:12 }}>
-                  ✅ Dinledim
-                </button>
-              )}
+          {/* Bismillah başlığı */}
+          {ayahs && !loading && surah.n !== 9 && (
+            <div style={{ textAlign:'center', padding:'8px 0', fontFamily:'var(--font-arabic)', fontSize:22, color:'var(--gold)', opacity:0.7, letterSpacing:2 }}>
+              بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
             </div>
-          </div>
+          )}
 
-          {/* Audio player */}
-          <div style={{ background:'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius:16, padding:'16px', display:'flex', gap:14, alignItems:'center' }}>
-            <button onClick={() => playStop(s.n)} style={{
-              width:60, height:60, borderRadius:'50%',
-              background: isPlaying ? '#ef4444' : '#fbbf24',
-              border:'none', color: isPlaying ? 'white' : '#0f172a',
-              fontSize:22, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center',
-              boxShadow:`0 4px 16px ${isPlaying ? '#ef444488' : '#fbbf2488'}`
-            }}>
-              {audioState === 'loading' ? '⏳' : isPlaying ? '⏹' : '▶'}
-            </button>
-            <div>
-              <div style={{ color:'white', fontWeight:800, fontSize:14 }}>{s.tr} Suresi</div>
-              <div style={{ color:'#94a3b8', fontSize:12 }}>Mishari Reşid el-Afâsi · {s.ayet} ayet</div>
-              {isPlaying && <div style={{ color:'#4ade80', fontSize:12, marginTop:2 }}>🎵 Çalıyor...</div>}
+          {/* Loading skeleton */}
+          {loading && Array.from({length:5}).map((_,i)=>(
+            <div key={i} className="shimmer" style={{ height:90, borderRadius:14 }}/>
+          ))}
+
+          {/* Ayetler */}
+          {ayahs?.map((a,i) => {
+            const isActive = curIdx === i
+            const isPast   = curIdx != null && i < curIdx
+
+            return (
+              <div
+                key={a.number}
+                ref={el => { ayahRefs.current[i] = el }}
+                onClick={() => !playing && startPlayback(i)}
+                style={{
+                  background:    isActive ? 'var(--gold-pale)' : 'white',
+                  border:        isActive ? '2px solid var(--gold)' : '1px solid var(--border)',
+                  borderRadius:  16,
+                  padding:       '16px 14px',
+                  cursor:        playing ? 'default' : 'pointer',
+                  opacity:       isPast ? 0.55 : 1,
+                  transition:    'all 0.35s ease',
+                  boxShadow:     isActive ? '0 6px 24px rgba(201,151,44,0.22)' : 'var(--shadow-sm)',
+                  position:      'relative',
+                  overflow:      'hidden',
+                }}
+              >
+                {/* Aktif — üst renk çizgisi */}
+                {isActive && (
+                  <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:'linear-gradient(90deg, transparent, var(--gold), transparent)', animation:'shimmer 1.6s infinite' }}/>
+                )}
+
+                {/* Numara + dalga göstergesi */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
+                  <div style={{
+                    width:28, height:28, borderRadius:'50%',
+                    background: isActive ? 'var(--gold)' : isPast ? 'var(--cream)' : 'var(--cream)',
+                    display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0
+                  }}>
+                    <span style={{ fontSize:11, fontWeight:800, color: isActive ? 'var(--navy)' : 'var(--text-muted)' }}>{a.numberInSurah}</span>
+                  </div>
+
+                  {isActive ? (
+                    /* Ses dalgası animasyonu */
+                    <div style={{ display:'flex', gap:3, alignItems:'center', height:20 }}>
+                      {[0,1,2,3].map(j => (
+                        <div key={j} style={{
+                          width:3, borderRadius:3, background:'var(--gold)',
+                          animation:`wave 0.7s ease-in-out ${j*0.12}s infinite alternate`,
+                        }}/>
+                      ))}
+                    </div>
+                  ) : !playing && (
+                    <div style={{ color:'var(--text-light)', fontSize:10, fontWeight:500 }}>▶ buradan başla</div>
+                  )}
+                </div>
+
+                {/* Ayet metni */}
+                <div style={{
+                  fontFamily: 'var(--font-arabic)',
+                  fontSize:   surah.n === 2 ? 22 : 26,   // uzun sureler için küçük
+                  color:      isActive ? 'var(--navy)' : 'var(--text)',
+                  textAlign:  'right',
+                  lineHeight: 2.1,
+                  direction:  'rtl',
+                  fontWeight: isActive ? 700 : 400,
+                  transition: 'color 0.3s',
+                }}>
+                  {a.text}
+                </div>
+              </div>
+            )
+          })}
+
+          {/* Tamamlandı kartı */}
+          {isListened && !loading && (
+            <div style={{ background:'var(--green-light)', border:'1px solid #4ade80', borderRadius:14, padding:'14px', textAlign:'center' }}>
+              <div style={{ fontSize:28, marginBottom:4 }}>✅</div>
+              <div style={{ fontWeight:700, color:'var(--green)' }}>Bu sure tamamlandı!</div>
             </div>
-          </div>
+          )}
+
+          {/* Manuel tamamla */}
+          {!isListened && ayahs && !loading && (
+            <button onClick={markDone} style={{ padding:'12px', background:'white', border:'1px solid var(--border)', borderRadius:14, cursor:'pointer', color:'var(--text-muted)', fontWeight:600, fontSize:13, fontFamily:'var(--font-ui)' }}>
+              ✅ Dinledim olarak işaretle
+            </button>
+          )}
         </div>
+
+        <style>{`
+          @keyframes wave {
+            from { height: 6px }
+            to   { height: 20px }
+          }
+        `}</style>
       </div>
     )
   }
 
-  // Cüz listesi (1-30)
-  const CUZLER = [0,...Array.from({length:30},(_,i)=>i+1)]
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SURE LİSTESİ
+  // ═══════════════════════════════════════════════════════════════════════════
+  const listenedCount = Object.keys(progress).filter(k=>progress[k]).length
+
+  const filtered = SURAHS.filter(s => {
+    const q  = search.toLowerCase()
+    const ok = !q || s.tr.toLowerCase().includes(q) || s.ar.includes(search) || String(s.n).includes(q)
+    return ok && (!cuz || s.cüz === cuz)
+  })
 
   return (
     <div style={{ height:'100%', display:'flex', flexDirection:'column', overflow:'hidden' }}>
+
       {/* Header */}
-      <div style={{ background:'linear-gradient(135deg,#0f172a,#1e293b)', padding:'14px 16px', flexShrink:0 }}>
+      <div style={{ background:'linear-gradient(135deg,var(--navy),var(--navy-mid))', padding:'14px 16px', flexShrink:0 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-          <div style={{ color:'white', fontWeight:800, fontSize:18 }}>🎧 Kur\'an-ı Kerim</div>
-          <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:12, padding:'6px 12px', textAlign:'center' }}>
-            <div style={{ color:'#fbbf24', fontWeight:800, fontSize:16 }}>{listenedCount}</div>
-            <div style={{ color:'rgba(255,255,255,0.6)', fontSize:10 }}>/ 114 sure</div>
+          <div style={{ color:'white', fontWeight:800, fontSize:17 }}>🎧 Kur'an-ı Kerim</div>
+          <div style={{ background:'rgba(201,151,44,0.2)', border:'1px solid rgba(201,151,44,0.35)', borderRadius:12, padding:'6px 12px', textAlign:'center' }}>
+            <div style={{ color:'var(--gold)', fontWeight:800, fontSize:16 }}>{listenedCount}</div>
+            <div style={{ color:'rgba(255,255,255,0.4)', fontSize:10 }}>/ 114</div>
           </div>
         </div>
 
-        {/* İlerleme */}
-        <div style={{ background:'rgba(255,255,255,0.1)', borderRadius:100, height:6, marginBottom:10 }}>
-          <div style={{ height:'100%', background:'#fbbf24', borderRadius:100, width:`${(listenedCount/114)*100}%`, transition:'width 0.5s', minWidth: listenedCount > 0 ? 6 : 0 }}/>
+        {/* Progress */}
+        <div style={{ background:'rgba(255,255,255,0.08)', borderRadius:100, height:5, marginBottom:10 }}>
+          <div style={{ height:'100%', background:'linear-gradient(90deg,var(--gold),var(--gold-light))', borderRadius:100, width:`${(listenedCount/114)*100}%`, transition:'width 0.5s', minWidth: listenedCount>0?5:0 }}/>
         </div>
 
         {/* Arama */}
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder='Sure ara...'
-          style={{ width:'100%', padding:'10px 14px', borderRadius:12, border:'none', fontSize:14, background:'rgba(255,255,255,0.1)', color:'white', outline:'none', boxSizing:'border-box', marginBottom:8 }}/>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder='Sure ara...'
+          style={{ width:'100%', padding:'9px 14px', borderRadius:12, border:'none', fontSize:14, background:'rgba(255,255,255,0.1)', color:'white', outline:'none', boxSizing:'border-box', marginBottom:8, fontFamily:'var(--font-ui)' }}/>
 
         {/* Cüz filtresi */}
-        <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:2 }}>
-          {CUZLER.map(n => (
-            <button key={n} onClick={() => setCuz(n)} style={{
-              background: cuz === n ? '#fbbf24' : 'rgba(255,255,255,0.15)',
-              color: cuz === n ? '#0f172a' : 'white',
-              border:'none', borderRadius:20, padding:'5px 10px',
-              cursor:'pointer', fontWeight:700, fontSize:11, whiteSpace:'nowrap', flexShrink:0
-            }}>{n === 0 ? 'Tümü' : `${n}. cüz`}</button>
+        <div className="scroll-x" style={{ display:'flex', gap:6 }}>
+          {[0,...Array.from({length:30},(_,i)=>i+1)].map(n=>(
+            <button key={n} onClick={()=>setCuz(n)} style={{
+              background: cuz===n?'var(--gold)':'rgba(255,255,255,0.1)',
+              color:      cuz===n?'var(--navy)':'rgba(255,255,255,0.7)',
+              border:'none', borderRadius:20, padding:'4px 10px',
+              cursor:'pointer', fontWeight:700, fontSize:11, whiteSpace:'nowrap', flexShrink:0,
+              fontFamily:'var(--font-ui)'
+            }}>{n===0?'Tümü':`${n}. cüz`}</button>
           ))}
         </div>
       </div>
 
-      {/* Sure listesi */}
-      <div style={{ flex:1, overflowY:'auto', padding:'8px 14px 20px', display:'flex', flexDirection:'column', gap:8 }}>
-        {filtered.map(s => {
-          const isListened = progress[s.n]
-          const isPlaying = playing === s.n
-          const hasFazilet = !!SURAH_FAZILET[s.n]
+      {/* Liste */}
+      <div className="scroll-y" style={{ flex:1, padding:'8px 14px 20px', display:'flex', flexDirection:'column', gap:8 }}>
+        {filtered.map(s=>{
+          const done   = progress[s.n]
+          const fazilet= !!SURAH_FAZILET[s.n]
           return (
-            <button key={s.n} onClick={() => setDetail(s)} style={{
+            <button key={s.n} onClick={()=>openSurah(s)} style={{
               display:'flex', alignItems:'center', gap:12, padding:'12px 14px',
-              background:'white', border:`1px solid ${isListened ? '#bbf7d0' : '#e5e7eb'}`,
+              background:'white', border:'1px solid var(--border)',
               borderRadius:14, cursor:'pointer', textAlign:'left',
-              boxShadow:'0 1px 4px rgba(0,0,0,0.06)',
-              borderLeft:`4px solid ${isListened ? '#16a34a' : isPlaying ? '#fbbf24' : '#e5e7eb'}`
+              boxShadow:'var(--shadow-sm)',
+              borderLeft:`3px solid ${done?'var(--gold)':'var(--border)'}`,
             }}>
-              <div style={{ width:38, height:38, borderRadius:10, background: isListened ? '#dcfce7' : isPlaying ? '#fef9c3' : '#f3f4f6', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                <span style={{ fontWeight:800, fontSize:13, color: isListened ? '#16a34a' : isPlaying ? '#b45309' : '#6b7280' }}>
-                  {isListened ? '✅' : isPlaying ? '🎵' : s.n}
+              <div style={{ width:38, height:38, borderRadius:10, background: done?'var(--gold-pale)':'var(--cream)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                <span style={{ fontWeight:800, fontSize:13, color: done?'var(--gold)':'var(--text-muted)' }}>
+                  {done ? '✅' : s.n}
                 </span>
               </div>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                  <span style={{ fontWeight:800, color:'#1e1b4b', fontSize:14 }}>{s.tr}</span>
-                  {hasFazilet && <span style={{ fontSize:10, background:'#fff7ed', color:'#ea580c', padding:'2px 6px', borderRadius:6, fontWeight:700 }}>Faziletli</span>}
+                  <span style={{ fontWeight:800, color:'var(--navy)', fontSize:14 }}>{s.tr}</span>
+                  {fazilet && <span style={{ fontSize:9, background:'var(--gold-pale)', color:'var(--gold)', padding:'2px 6px', borderRadius:6, fontWeight:700, border:'1px solid rgba(201,151,44,0.3)' }}>FAZİLETLİ</span>}
                 </div>
-                <div style={{ fontFamily:'Amiri, serif', fontSize:14, color:'#6b7280', direction:'rtl', display:'inline-block' }}>{s.ar}</div>
-                <div style={{ fontSize:11, color:'#9ca3af' }}>{s.anlam} · {s.ayet} ayet</div>
+                <div style={{ fontFamily:'var(--font-arabic)', fontSize:13, color:'var(--text-muted)', direction:'rtl', display:'inline-block' }}>{s.ar}</div>
+                <div style={{ fontSize:11, color:'var(--text-light)', marginTop:1 }}>{s.anlam} · {s.ayet} ayet · {s.cüz}. cüz</div>
               </div>
-              <div style={{ fontSize:18, flexShrink:0 }}>›</div>
+              <span style={{ color:'var(--text-light)', fontSize:18, flexShrink:0 }}>›</span>
             </button>
           )
         })}
       </div>
-
-      {/* Şu an çalan */}
-      {playing && audioState === 'playing' && (
-        <div style={{ background:'linear-gradient(135deg,#0f172a,#1e293b)', padding:'12px 16px', display:'flex', gap:12, alignItems:'center', borderTop:'1px solid rgba(255,255,255,0.1)', flexShrink:0 }}>
-          <div style={{ flex:1 }}>
-            <div style={{ color:'#4ade80', fontSize:11, fontWeight:700 }}>🎵 Çalıyor</div>
-            <div style={{ color:'white', fontWeight:800, fontSize:14 }}>{SURAHS.find(s=>s.n===playing)?.tr} Suresi</div>
-          </div>
-          <button onClick={() => { audioRef.current.pause(); setPlaying(null); setAudioState('idle') }}
-            style={{ background:'#ef4444', border:'none', color:'white', borderRadius:10, padding:'8px 16px', cursor:'pointer', fontWeight:700, fontSize:13 }}>
-            ⏹ Durdur
-          </button>
-        </div>
-      )}
     </div>
   )
 }
