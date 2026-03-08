@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { SURAHS, SURAH_FAZILET } from '../data/quranSurahs'
 
 const PROGRESS_KEY = 'quran-progress'
-const CACHE_KEY    = 'quran-ayah-cache-v3'
+const CACHE_KEY    = 'quran-ayah-cache-v4'
 
 function loadProgress() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') } catch { return {} } }
 function saveProgress(p) { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)) }
@@ -34,7 +34,7 @@ async function fetchAyahs(surahNum) {
   const cache = loadCache()
   if (cache[surahNum]?.length > 0 && cache[surahNum][0]?.text) return cache[surahNum]
 
-  const res  = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/quran-uthmani`)
+  const res  = await fetch(`https://api.alquran.cloud/v1/surah/${surahNum}/quran-simple`)
   if (!res.ok) throw new Error('API error: ' + res.status)
   const json = await res.json()
 
@@ -151,6 +151,16 @@ export default function QuranView({ onSubView }) {
     playingRef.current = false
   }, [ayahs, surah, progress])
 
+
+  // Herhangi bir ayete atla (çalıyor olsa bile)
+  const jumpToAyah = useCallback((i) => {
+    playingRef.current = false
+    audioRef.current.pause()
+    setPlaying(false); setStopped(false)
+    // Async loop'un çıkması için kısa bekle
+    setTimeout(() => startPlayback(i), 80)
+  }, [startPlayback])
+
   const stopPlayback = () => {
     playingRef.current = false
     audioRef.current.pause()
@@ -262,13 +272,13 @@ export default function QuranView({ onSubView }) {
               <div
                 key={a.number}
                 ref={el => { ayahRefs.current[i] = el }}
-                onClick={() => !playing && startPlayback(i)}
+                onClick={() => jumpToAyah(i)}
                 style={{
                   background:    isActive ? '#fdf6e3' : '#ffffff',
                   border:        isActive ? '2px solid #c9972c' : '1px solid #e8e0d0',
                   borderRadius:  16,
                   padding:       '16px 14px',
-                  cursor:        playing ? 'default' : 'pointer',
+                  cursor:        'pointer',
                   opacity:       isPast ? 0.55 : 1,
                   transition:    'all 0.35s ease',
                   boxShadow:     isActive ? '0 6px 24px rgba(201,151,44,0.22)' : '0 1px 4px rgba(15,32,64,0.08)',
@@ -307,20 +317,23 @@ export default function QuranView({ onSubView }) {
                 </div>
 
                 {/* Ayet metni */}
-                <div style={{
-                  fontFamily: "'Amiri', 'Scheherazade New', 'Traditional Arabic', 'Arabic Typesetting', 'Noto Naskh Arabic', serif",
-                  fontSize:   surah.n === 2 ? 22 : 28,
+                {/* Ayet numarası + metin aynı satırda — Arabic RTL */}
+                <p dir="rtl" lang="ar" style={{
+                  margin:     0,
+                  padding:    '4px 0 2px',
+                  fontFamily: "'Amiri', 'Geeza Pro', serif",
+                  fontSize:   24,
+                  fontWeight: 400,
                   color:      '#1a1a2e',
                   textAlign:  'right',
-                  lineHeight: 2.2,
-                  direction:  'rtl',
-                  fontWeight: isActive ? 700 : 400,
-                  transition: 'color 0.3s',
+                  lineHeight: 1.9,
+                  minHeight:  44,
                   wordBreak:  'break-word',
-                  minHeight:  40,
+                  overflowWrap: 'break-word',
                 }}>
-                  {a.text || '⏳'}
-                </div>
+                  {a.text ? a.text : <span style={{color:'#94a3b8',fontSize:14}}>yükleniyor...</span>}
+                  <span style={{color:'var(--gold)',marginRight:6,fontSize:18}}> ۝{a.numberInSurah}</span>
+                </p>
               </div>
             )
           })}
