@@ -2,6 +2,42 @@ import { useState } from 'react'
 import { LETTERS, HAREKELER, SYLLABLES, WORDS, SURAS, LETTER_FORMS } from '../data/curriculum'
 import { speak } from '../utils/audio'
 
+
+// Web Audio API ile ses — dış dosya gerektirmez
+function playCorrectSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const t = ctx.currentTime
+    // İki kısa bip — "ding ding"
+    ;[880, 1100].forEach((freq, i) => {
+      const osc  = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain); gain.connect(ctx.destination)
+      osc.type = 'sine'
+      osc.frequency.value = freq
+      gain.gain.setValueAtTime(0, t + i * 0.12)
+      gain.gain.linearRampToValueAtTime(0.25, t + i * 0.12 + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.12 + 0.18)
+      osc.start(t + i * 0.12); osc.stop(t + i * 0.12 + 0.2)
+    })
+  } catch(e) {}
+}
+
+function playWrongSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)()
+    const osc  = ctx.createOscillator()
+    const gain = ctx.createGain()
+    osc.connect(gain); gain.connect(ctx.destination)
+    osc.type = 'sawtooth'
+    osc.frequency.setValueAtTime(300, ctx.currentTime)
+    osc.frequency.linearRampToValueAtTime(180, ctx.currentTime + 0.3)
+    gain.gain.setValueAtTime(0.18, ctx.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.35)
+  } catch(e) {}
+}
+
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5) }
 const ALL_AYAHS = SURAS.flatMap(s => s.ayahs)
 
@@ -126,8 +162,8 @@ export default function Quiz({ lessonId, onFinish }) {
     if (selected) return
     setSelected(opt)
     const isOk = opt === q.correct
-    if (isOk) { setCorrect(c=>c+1); speak('أحسنت',1.0) }
-    else { setShake(true); setShowHint(true); speak(q.question); setTimeout(()=>setShake(false),500) }
+    if (isOk) { setCorrect(c=>c+1); playCorrectSound(); speak('أحسنت',1.0) }
+    else { setShake(true); setShowHint(true); playWrongSound(); speak(q.question); setTimeout(()=>setShake(false),500) }
     setTimeout(()=>{
       if (isLast) {
         const pct=(correct+(isOk?1:0))/questions.length
@@ -166,6 +202,15 @@ export default function Quiz({ lessonId, onFinish }) {
         <div style={{ color:'var(--text-light)', fontSize:11, marginTop:6 }}>🔊 Sese basmak için dokun</div>
       </div>
 
+      {showHint && selected && selected !== q.correct && (
+        <div style={{ background:'#dcfce7', border:'2px solid #22c55e', borderRadius:12, padding:'12px 16px', display:'flex', alignItems:'center', gap:10 }}>
+          <span style={{ fontSize:22 }}>✅</span>
+          <div>
+            <div style={{ fontSize:11, color:'#166534', fontWeight:700, marginBottom:2 }}>DOĞRU CEVAP</div>
+            <div style={{ fontSize:16, color:'#14532d', fontWeight:800 }}>{q.correct}</div>
+          </div>
+        </div>
+      )}
       {showHint && (
         <div style={{ background:'#fef9c3', border:'2px solid var(--gold)', borderRadius:12, padding:'12px 14px', fontSize:13, color:'var(--navy)', fontWeight:600 }}>
           💡 {q.hint}
