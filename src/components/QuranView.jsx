@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { SURAHS, SURAH_FAZILET } from '../data/quranSurahs'
-import { QURAN_TEXT } from '../data/quranText'
 
 const PROGRESS_KEY = 'quran-progress'
 function loadProg() { try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)||'{}') } catch { return {} } }
@@ -11,13 +10,24 @@ function audioUrl(globalN) {
 }
 
 export default function QuranView({ onSubView }) {
-  const [progress, setProgress] = useState(loadProg)
-  const [search,   setSearch]   = useState('')
-  const [cuz,      setCuz]      = useState(0)
-  const [surah,    setSurah]    = useState(null)
-  const [playing,  setPlaying]  = useState(false)
-  const [stopped,  setStopped]  = useState(false)
-  const [curIdx,   setCurIdx]   = useState(null)
+  const [progress,   setProgress]   = useState(loadProg)
+  const [search,     setSearch]     = useState('')
+  const [cuz,        setCuz]        = useState(0)
+  const [surah,      setSurah]      = useState(null)
+  const [playing,    setPlaying]    = useState(false)
+  const [stopped,    setStopped]    = useState(false)
+  const [curIdx,     setCurIdx]     = useState(null)
+  const [quranText,  setQuranText]  = useState(null)   // lazy loaded
+  const [textLoading,setTextLoading]= useState(false)
+
+  // Kuran metni — ilk mount'ta arka planda yükle
+  useEffect(() => {
+    if (quranText) return
+    setTextLoading(true)
+    import('../data/quranText')
+      .then(m => { setQuranText(m.QURAN_TEXT); setTextLoading(false) })
+      .catch(() => setTextLoading(false))
+  }, [])
 
   const audioRef    = useRef(new Audio())
   const playingRef  = useRef(false)
@@ -56,7 +66,7 @@ export default function QuranView({ onSubView }) {
   // Sıralı oynatma
   const startPlayback = useCallback(async (fromIdx) => {
     if (!surah) return
-    const ayahs = QURAN_TEXT[String(surah.n)]
+    const ayahs = quranText?.[String(surah.n)]
     if (!ayahs) return
     playingRef.current = true
     setPlaying(true); setStopped(false)
@@ -93,7 +103,7 @@ export default function QuranView({ onSubView }) {
 
   // ── SURE DETAY ─────────────────────────────────────────────────────────
   if (surah) {
-    const ayahs    = QURAN_TEXT[String(surah.n)] || []
+    const ayahs    = quranText?.[String(surah.n)] || []
     const isListened = progress[surah.n]
     const pct = curIdx != null ? ((curIdx+1)/ayahs.length)*100 : 0
 
@@ -147,8 +157,16 @@ export default function QuranView({ onSubView }) {
             </div>
           )}
 
+          {/* Yüklenme göstergesi */}
+          {textLoading && (
+            <div style={{ textAlign:'center', padding:30, color:'#94a3b8' }}>
+              <div style={{ fontSize:28, marginBottom:8 }}>📖</div>
+              <div style={{ fontSize:13 }}>Kuran metni yükleniyor...</div>
+            </div>
+          )}
+
           {/* Bismillah (Tevbe hariç) */}
-          {surah.n !== 9 && (
+          {!textLoading && surah.n !== 9 && (
             <div style={{ textAlign:'center', padding:'6px 0 2px', fontFamily:"'Amiri','Geeza Pro',serif", fontSize:22, color:'#c9972c', opacity:0.8 }}>
               بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
             </div>
